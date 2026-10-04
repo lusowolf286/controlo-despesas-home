@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#191c20">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Despesas HOME">
+<title>Controlo Despesas HOME</title>
+<style>
+html{color-scheme:dark}
+body{margin:0;min-height:100vh;min-height:100dvh;display:grid;place-items:center;background:#191c20;color:#e8edf1;font-family:-apple-system,"Segoe UI",system-ui,sans-serif;padding:20px;box-sizing:border-box}
+form{width:100%;max-width:360px;background:#23272d;border:1px solid #343b44;border-radius:16px;padding:26px;display:flex;flex-direction:column;gap:14px}
+h1{font-size:20px;margin:0}
+p{margin:0;color:#b2bcc6;font-size:14.5px;line-height:1.45}
+label{font-size:14px;font-weight:600}
+input{font:inherit;font-size:16px;padding:12px;border-radius:10px;border:1px solid #343b44;background:#191c20;color:#e8edf1;width:100%;box-sizing:border-box}
+button{font:inherit;font-size:16px;font-weight:700;padding:12px;border-radius:10px;border:0;background:#3987e5;color:#fff;cursor:pointer;min-height:44px}
+button:disabled{opacity:.6}
+input:focus-visible,button:focus-visible{outline:2px solid #8cc8f7;outline-offset:2px}
+#err{color:#ff9d8a;font-weight:600}
+</style>
+</head>
+<body>
+<form id="f" autocomplete="on">
+  <h1>Controlo Despesas HOME</h1>
+  <p>Página privada. Introduza a palavra-passe para abrir a dashboard. Fica guardada neste dispositivo.</p>
+  <label for="pw">Palavra-passe</label>
+  <input id="pw" type="password" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" required>
+  <p id="err" role="alert" hidden></p>
+  <button id="go" type="submit">Abrir</button>
+</form>
+<script>
+const P=/*PAYLOAD*/;
+const b=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function open_(pw){
+  const km=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
+  const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b(P.s),iterations:P.n,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['decrypt']);
+  const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:b(P.i)},key,b(P.c));
+  return new TextDecoder().decode(pt);
+}
+function show(html){document.open();document.write(html);document.close()}
+const f=document.getElementById('f'),err=document.getElementById('err'),go=document.getElementById('go'),inp=document.getElementById('pw');
+async function attempt(pw,silent){
+  go.disabled=true;go.textContent='A abrir…';err.hidden=true;
+  try{const html=await open_(pw);try{localStorage.setItem('cdh_pw',pw)}catch(e){}show(html)}
+  catch(e){try{localStorage.removeItem('cdh_pw')}catch(_){}go.disabled=false;go.textContent='Abrir';
+    if(!silent){err.textContent=(window.crypto&&crypto.subtle)?'Palavra-passe incorreta. Verifique e tente de novo.':'Este navegador não consegue abrir a página. Abra o endereço em https no Safari.';err.hidden=false;inp.select()}}
+}
+f.addEventListener('submit',e=>{e.preventDefault();attempt(inp.value.trim(),false)});
+let saved=null;try{saved=localStorage.getItem('cdh_pw')}catch(e){}
+if(saved)attempt(saved,true);else inp.focus();
+</script>
+</body>
+</html>

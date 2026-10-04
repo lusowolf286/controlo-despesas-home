@@ -1,0 +1,387 @@
+<title>Controlo Despesas HOME</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Tema único escuro (antracite) em azuis, com rubi para «por pagar» e coral para «vencido». Layout: faixa verde-escura com título e âmbito; cartões-indicador com ícone; grelha de gráficos (evolução, estado, período, composição); categorias e entidades com filtro cruzado; financiamento com anéis por empréstimo; pendentes e livro de lançamentos. */
+:root{
+  --bg:#191c20; --surface:#23272d; --ink:#e8edf1; --ink2:#b2bcc6; --muted:#87929d; --line:#343b44; --chip:#2d343c;
+  --band:#22282f; --band2:#1c4560; --on-band:#eef5fa; --on-band2:#a9c3d6;
+  --primary:#3987e5; --sky:#8cc8f7; --cyan:#58c4e6; --navy:#2a5ea8; --steel:#7f9cc0; --ice:#c4dcf2; --slate:#566a7f;
+  --due:#c23a5a; --due-text:#f08ba3; --due-soft:#45202c; --crit:#ff9d8a; --crit-soft:#4a2a24; --paid-soft:#1d3552;
+  --display:"Sora","Segoe UI",system-ui,sans-serif; --body:"Figtree","Segoe UI",system-ui,sans-serif;
+  --shadow:0 1px 0 rgba(255,255,255,.04) inset,0 8px 20px -12px rgba(0,0,0,.6);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;margin:0}
+.wrap{max-width:1280px;margin:0 auto;padding-inline:20px;padding-block:20px 56px;display:flex;flex-direction:column;gap:18px}
+.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.ic{width:1em;height:1em;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+/* faixa */
+.band{background:linear-gradient(120deg,var(--band),var(--band2));border:1px solid var(--line);color:var(--on-band);border-radius:16px;padding:22px 24px;display:flex;flex-wrap:wrap;gap:16px 28px;align-items:center;justify-content:space-between}
+.band h1{font-family:var(--display);font-weight:700;font-size:clamp(22px,3.2vw,30px);line-height:1.15;margin:0;text-wrap:balance}
+.band p{margin:4px 0 0;color:var(--on-band2);font-size:14px}
+.band a{color:var(--on-band);font-weight:600;font-size:14px;display:inline-flex;gap:6px;align-items:center}
+.brand{display:flex;gap:14px;align-items:center;min-width:0}
+.brand .logo{width:46px;height:46px;border-radius:12px;background:rgba(255,255,255,.12);display:grid;place-items:center;font-size:24px;flex:none}
+.tools{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:center}
+.seg{display:inline-flex;background:rgba(255,255,255,.1);border-radius:10px;padding:3px;gap:2px}
+.seg button{font:inherit;font-size:14px;font-weight:600;color:var(--on-band2);background:none;border:0;padding:7px 16px;border-radius:8px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--on-band);color:var(--band)}
+.seg button:focus-visible,.band a:focus-visible{outline:2px solid var(--on-band);outline-offset:2px}
+/* filtros ativos */
+.active{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:14px;color:var(--ink2)}
+.chipx{display:inline-flex;align-items:center;gap:6px;background:var(--chip);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:4px 6px 4px 12px;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer}
+.chipx .ic{font-size:14px}
+.chipx:focus-visible{outline:2px solid var(--primary);outline-offset:1px}
+/* indicadores */
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px;min-width:0}
+.kpi .top{display:flex;align-items:center;gap:10px;color:var(--ink2);font-size:13.5px;font-weight:600;line-height:1.2}
+.badge{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-size:19px;background:var(--chip);color:var(--primary);flex:none}
+.kpi b{font-family:var(--display);font-weight:700;font-size:clamp(18px,1.75vw,23px);line-height:1.1}
+.kpi small{color:var(--muted);font-size:12.5px}
+.kpi.blue .badge{color:var(--primary)}
+.kpi.warn .badge{background:var(--due-soft);color:var(--due-text)}
+.kpi.crit .badge{background:var(--crit-soft);color:var(--crit)} .kpi.crit b{color:var(--crit)}
+/* painéis */
+.grid{display:grid;gap:18px}
+.g21{grid-template-columns:minmax(0,2fr) minmax(0,1fr)} .g11{grid-template-columns:repeat(2,minmax(0,1fr))} .g12{grid-template-columns:minmax(0,1fr) minmax(0,2fr)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:14px;min-width:0}
+.ph{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 14px}
+.ph h2{font-family:var(--display);font-weight:600;font-size:16.5px;margin:0;display:flex;align-items:center;gap:8px}
+.ph h2 .ic{color:var(--sky);font-size:18px}
+.ph p{margin:0;color:var(--muted);font-size:13px}
+.cv{position:relative;height:270px;min-width:0}
+.cv.sm{height:230px}
+.donut{position:relative;height:210px}
+.donut .mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;text-align:center}
+.donut .mid b{font-family:var(--display);font-size:18px}
+.donut .mid span{font-size:12px;color:var(--muted)}
+.lg{display:flex;flex-direction:column;gap:6px;font-size:13.5px}
+.lg div{display:grid;grid-template-columns:12px minmax(0,1fr) auto auto;gap:8px;align-items:center}
+.lg i{width:12px;height:12px;border-radius:3px;background:var(--c)}
+.lg span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lg em{font-style:normal;color:var(--muted);font-size:12.5px}
+/* barras com ícone */
+.bars{display:flex;flex-direction:column;gap:2px}
+.bar{display:grid;grid-template-columns:30px minmax(0,140px) minmax(0,1fr) auto;gap:10px;align-items:center;background:none;border:0;padding:4px 6px;margin-inline:-6px;border-radius:9px;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.bar.noic{grid-template-columns:minmax(0,170px) minmax(0,1fr) auto}
+.bar:hover{background:var(--chip)} .bar:focus-visible{outline:2px solid var(--primary)}
+.bar[aria-pressed="true"]{background:var(--chip);box-shadow:inset 0 0 0 1.5px var(--primary)}
+.bars.has-sel .bar[aria-pressed="false"]{opacity:.5}
+.bar .bi{width:30px;height:30px;border-radius:8px;background:var(--chip);color:var(--sky);display:grid;place-items:center;font-size:16px}
+.bar .lab{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;font-weight:500}
+.bar .track{height:12px;display:flex;gap:2px;border-radius:6px}
+.bar .track i{display:block;height:100%;border-radius:3px;background:var(--primary)}
+.bar .track i.p{background:var(--due)}
+.bar .val{font-size:13px;color:var(--ink2)}
+/* empréstimos */
+.loans{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.loan{border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px;align-items:center}
+.ring{position:relative;width:64px;height:64px}
+.ring svg{width:64px;height:64px;transform:rotate(-90deg)}
+.ring span{position:absolute;inset:0;display:grid;place-items:center;font-size:12.5px;font-weight:700}
+.loan h3{margin:0;font-size:14.5px;font-weight:700;display:flex;gap:6px;align-items:center}
+.loan h3 .ic{color:var(--primary)}
+.loan dl{margin:4px 0 0;display:grid;grid-template-columns:auto 1fr;gap:1px 8px;font-size:12.5px;color:var(--ink2)}
+.loan dt{color:var(--muted)} .loan dd{margin:0;text-align:right}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 18px}
+.facts div{display:flex;flex-direction:column;gap:1px;min-width:0}
+.facts span{font-size:12.5px;color:var(--muted);font-weight:600}
+.facts b{font-family:var(--display);font-size:16px;font-weight:600}
+.facts small{color:var(--muted);font-size:12px}
+/* tabelas */
+.scroll{overflow-x:auto;min-width:0}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{font-size:12.5px;color:var(--muted);font-weight:600;text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+th.r,td.r{text-align:right}
+tfoot td{font-weight:700;border-top:1px solid var(--line);border-bottom:0}
+.cat{display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.cat .ic{color:var(--sky);font-size:15px}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+.pill.crit{background:var(--crit-soft);color:var(--crit)} .pill.warn{background:var(--due-soft);color:var(--due-text)} .pill.good{background:var(--paid-soft);color:var(--sky)}
+.filters{display:flex;flex-wrap:wrap;gap:8px}
+.filters input,.filters select,.filters button{font:inherit;font-size:14px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:8px 10px;min-width:0;max-width:100%}
+.filters input{flex:1 1 200px}
+.filters button{cursor:pointer;background:var(--surface);font-weight:600}
+.filters :focus-visible{outline:2px solid var(--primary);outline-offset:1px}
+.ledger{max-height:540px;overflow:auto;border:1px solid var(--line);border-radius:10px}
+.ledger th{position:sticky;top:0;background:var(--surface);cursor:pointer;user-select:none}
+.ledger th[aria-sort="ascending"]::after{content:" ↑"} .ledger th[aria-sort="descending"]::after{content:" ↓"}
+.ledger td{white-space:nowrap}
+.note{font-size:13px;color:var(--muted);margin:0}
+@media (max-width:1080px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:860px){.g21,.g11,.g12{grid-template-columns:minmax(0,1fr)}.facts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.wrap{padding-inline:16px}.kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.kpi{padding:13px}.panel{padding:16px}.band{padding:18px}.bar{grid-template-columns:30px minmax(0,96px) minmax(0,1fr) auto;gap:8px}.bar.noic{grid-template-columns:minmax(0,110px) minmax(0,1fr) auto}.cv{height:230px}}
+</style>
+
+<div class="wrap">
+  <header class="band">
+    <div class="brand">
+      <div class="logo" id="logo"></div>
+      <div>
+        <h1>Controlo Despesas HOME</h1>
+        <p id="asof"></p>
+      </div>
+    </div>
+    <div class="tools">
+      <div class="seg" role="group" aria-label="Âmbito">
+        <button type="button" data-s="" aria-pressed="true">Tudo</button>
+        <button type="button" data-s="Obra" aria-pressed="false">Obra</button>
+        <button type="button" data-s="Projeto" aria-pressed="false">Projeto</button>
+      </div>
+      <a href="https://docs.google.com/spreadsheets/d/1aDvn-ulonQT7NRuyR-IaVvHWW9pkXa6xvmjxJCxdPJE/edit" id="src">Abrir a folha</a>
+    </div>
+  </header>
+
+  <div class="active" id="active" hidden></div>
+
+  <section class="kpis" id="kpis"></section>
+
+  <div class="grid g21">
+    <section class="panel">
+      <div class="ph"><h2 id="hCum"></h2><p>Soma dos lançamentos pela data</p></div>
+      <div class="cv"><canvas id="cCum" role="img" aria-label="Investimento acumulado ao longo do tempo"></canvas></div>
+    </section>
+    <section class="panel">
+      <div class="ph"><h2 id="hEst"></h2></div>
+      <div class="donut"><canvas id="cEst" role="img" aria-label="Pago, vencido e a vencer"></canvas><div class="mid"><b class="num" id="estMid"></b><span>pago</span></div></div>
+      <div class="lg" id="lgEst"></div>
+    </section>
+  </div>
+
+  <div class="grid g21">
+    <section class="panel">
+      <div class="ph"><h2 id="hPer"></h2><p>Pago e por pagar, pela data do lançamento</p></div>
+      <div class="cv"><canvas id="cPer" role="img" aria-label="Despesa por período"></canvas></div>
+    </section>
+    <section class="panel">
+      <div class="ph"><h2 id="hComp"></h2><p>Clique para filtrar</p></div>
+      <div class="donut"><canvas id="cComp" role="img" aria-label="Obra e projeto"></canvas><div class="mid"><b class="num" id="compMid"></b><span>total</span></div></div>
+      <div class="lg" id="lgComp"></div>
+    </section>
+  </div>
+
+  <div class="grid g11">
+    <section class="panel">
+      <div class="ph"><h2 id="hCat"></h2><p>Clique numa categoria para filtrar tudo</p></div>
+      <div class="bars" id="cats"></div>
+    </section>
+    <section class="panel">
+      <div class="ph"><h2 id="hEnt"></h2><p>Clique numa entidade para filtrar tudo</p></div>
+      <div class="bars" id="ents"></div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <div class="ph"><h2 id="hFin"></h2><p id="empTxt"></p></div>
+    <div class="grid g12">
+      <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+        <div class="donut"><canvas id="cFin" role="img" aria-label="Fontes de financiamento do investimento"></canvas><div class="mid"><b class="num" id="finMid"></b><span>investimento</span></div></div>
+        <div class="lg" id="lgFin"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+        <div class="facts" id="facts"></div>
+        <div class="loans" id="loans"></div>
+      </div>
+    </div>
+    <p class="note">A dívida dos empréstimos não soma ao investimento: é uma das fontes que o pagam. «Outras fontes» é a parte já paga que não saiu dos empréstimos registados na folha. Esta secção refere-se sempre ao investimento total, sem filtros.</p>
+  </section>
+
+  <section class="panel">
+    <div class="ph"><h2 id="hDue"></h2><p>Vencimento = data do lançamento + 30 dias</p></div>
+    <div class="scroll"><table id="due"></table></div>
+  </section>
+
+  <section class="panel" id="ledgerPanel">
+    <div class="ph"><h2 id="hLed"></h2><p id="count"></p></div>
+    <div class="filters">
+      <input id="q" type="search" placeholder="Procurar entidade ou descrição" aria-label="Procurar">
+      <select id="fPago" aria-label="Estado"><option value="">Todos os estados</option><option value="1">Pago</option><option value="0">Por pagar</option></select>
+      <button id="clear" type="button">Limpar filtros</button>
+    </div>
+    <div class="ledger"><table id="ledger"></table></div>
+    <p class="note" id="foot"></p>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const D=/*DATA*/;
+const IC={"hard-hat":"<path d=\"M2 18a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v2z\"/> <path d=\"M10 10V5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5\"/> <path d=\"M4 15v-3a6 6 0 0 1 6-6\"/> <path d=\"M14 6a6 6 0 0 1 6 6v3\"/>","fence":"<path d=\"M4 3 2 5v15c0 .6.4 1 1 1h2c.6 0 1-.4 1-1V5Z\"/> <path d=\"M6 8h4\"/> <path d=\"M6 18h4\"/> <path d=\"m12 3-2 2v15c0 .6.4 1 1 1h2c.6 0 1-.4 1-1V5Z\"/> <path d=\"M14 8h4\"/> <path d=\"M14 18h4\"/> <path d=\"m20 3-2 2v15c0 .6.4 1 1 1h2c.6 0 1-.4 1-1V5Z\"/>","rectangle-horizontal":"<rect width=\"20\" height=\"12\" x=\"2\" y=\"6\" rx=\"2\"/>","wrench":"<path d=\"M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z\"/>","waves":"<path d=\"M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1\"/> <path d=\"M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1\"/> <path d=\"M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1\"/>","shield":"<path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\"/>","house":"<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\"/> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/>","cuboid":"<path d=\"m21.12 6.4-6.05-4.06a2 2 0 0 0-2.17-.05L2.95 8.41a2 2 0 0 0-.95 1.7v5.82a2 2 0 0 0 .88 1.66l6.05 4.07a2 2 0 0 0 2.17.05l9.95-6.12a2 2 0 0 0 .95-1.7V8.06a2 2 0 0 0-.88-1.66Z\"/> <path d=\"M10 22v-8L2.25 9.15\"/> <path d=\"m10 14 11.77-6.87\"/>","grid-3x3":"<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"/> <path d=\"M3 9h18\"/> <path d=\"M3 15h18\"/> <path d=\"M9 3v18\"/> <path d=\"M15 3v18\"/>","plug":"<path d=\"M12 22v-5\"/> <path d=\"M9 8V2\"/> <path d=\"M15 8V2\"/> <path d=\"M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z\"/>","paint-roller":"<rect width=\"16\" height=\"6\" x=\"2\" y=\"2\" rx=\"2\"/> <path d=\"M10 16v-2a2 2 0 0 1 2-2h8a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2\"/> <rect width=\"4\" height=\"6\" x=\"8\" y=\"16\" rx=\"1\"/>","shovel":"<path d=\"M2 22v-5l5-5 5 5-5 5z\"/> <path d=\"M9.5 14.5 16 8\"/> <path d=\"m17 2 5 5-.5.5a3.53 3.53 0 0 1-5 0s0 0 0 0a3.53 3.53 0 0 1 0-5L17 2\"/>","triangle-alert":"<path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\"/> <path d=\"M12 9v4\"/> <path d=\"M12 17h.01\"/>","scroll-text":"<path d=\"M15 12h-5\"/> <path d=\"M15 8h-5\"/> <path d=\"M19 17V5a2 2 0 0 0-2-2H4\"/> <path d=\"M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3\"/>","boxes":"<path d=\"M2.97 12.92A2 2 0 0 0 2 14.63v3.24a2 2 0 0 0 .97 1.71l3 1.8a2 2 0 0 0 2.06 0L12 19v-5.5l-5-3-4.03 2.42Z\"/> <path d=\"m7 16.5-4.74-2.85\"/> <path d=\"m7 16.5 5-3\"/> <path d=\"M7 16.5v5.17\"/> <path d=\"M12 13.5V19l3.97 2.38a2 2 0 0 0 2.06 0l3-1.8a2 2 0 0 0 .97-1.71v-3.24a2 2 0 0 0-.97-1.71L17 10.5l-5 3Z\"/> <path d=\"m17 16.5-5-3\"/> <path d=\"m17 16.5 4.74-2.85\"/> <path d=\"M17 16.5v5.17\"/> <path d=\"M7.97 4.42A2 2 0 0 0 7 6.13v4.37l5 3 5-3V6.13a2 2 0 0 0-.97-1.71l-3-1.8a2 2 0 0 0-2.06 0l-3 1.8Z\"/> <path d=\"M12 8 7.26 5.15\"/> <path d=\"m12 8 4.74-2.85\"/> <path d=\"M12 13.5V8\"/>","package-open":"<path d=\"M12 22v-9\"/> <path d=\"M15.17 2.21a1.67 1.67 0 0 1 1.63 0L21 4.57a1.93 1.93 0 0 1 0 3.36L8.82 14.79a1.655 1.655 0 0 1-1.64 0L3 12.43a1.93 1.93 0 0 1 0-3.36z\"/> <path d=\"M20 13v3.87a2.06 2.06 0 0 1-1.11 1.83l-6 3.08a1.93 1.93 0 0 1-1.78 0l-6-3.08A2.06 2.06 0 0 1 4 16.87V13\"/> <path d=\"M21 12.43a1.93 1.93 0 0 0 0-3.36L8.83 2.2a1.64 1.64 0 0 0-1.63 0L3 4.57a1.93 1.93 0 0 0 0 3.36l12.18 6.86a1.636 1.636 0 0 0 1.63 0z\"/>","sprout":"<path d=\"M7 20h10\"/> <path d=\"M10 20c5.5-2.5.8-6.4 3-10\"/> <path d=\"M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z\"/> <path d=\"M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z\"/>","key-round":"<path d=\"M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z\"/> <circle cx=\"16.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\"/>","truck":"<path d=\"M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2\"/> <path d=\"M15 18H9\"/> <path d=\"M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14\"/> <circle cx=\"17\" cy=\"18\" r=\"2\"/> <circle cx=\"7\" cy=\"18\" r=\"2\"/>","circle-check":"<circle cx=\"12\" cy=\"12\" r=\"10\"/> <path d=\"m9 12 2 2 4-4\"/>","book-open":"<path d=\"M12 7v14\"/> <path d=\"M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z\"/>","droplets":"<path d=\"M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z\"/> <path d=\"M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97\"/>","trending-up":"<polyline points=\"22 7 13.5 15.5 8.5 10.5 2 17\"/> <polyline points=\"16 7 22 7 22 13\"/>","frame":"<line x1=\"22\" x2=\"2\" y1=\"6\" y2=\"6\"/> <line x1=\"22\" x2=\"2\" y1=\"18\" y2=\"18\"/> <line x1=\"6\" x2=\"6\" y1=\"2\" y2=\"22\"/> <line x1=\"18\" x2=\"18\" y1=\"2\" y2=\"22\"/>","brick-wall":"<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"/> <path d=\"M12 9v6\"/> <path d=\"M16 15v6\"/> <path d=\"M16 3v6\"/> <path d=\"M3 15h18\"/> <path d=\"M3 9h18\"/> <path d=\"M8 15v6\"/> <path d=\"M8 3v6\"/>","stamp":"<path d=\"M5 22h14\"/> <path d=\"M19.27 13.73A2.5 2.5 0 0 0 17.5 13h-11A2.5 2.5 0 0 0 4 15.5V17a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-1.5c0-.66-.26-1.3-.73-1.77Z\"/> <path d=\"M14 13V8.5C14 7 15 7 15 5a3 3 0 0 0-3-3c-1.66 0-3 1-3 3s1 2 1 3.5V13\"/>","circle-dot":"<circle cx=\"12\" cy=\"12\" r=\"10\"/> <circle cx=\"12\" cy=\"12\" r=\"1\"/>","mountain":"<path d=\"m8 3 4 8 5-5 5 15H2L8 3z\"/>","clipboard-list":"<rect width=\"8\" height=\"4\" x=\"8\" y=\"2\" rx=\"1\" ry=\"1\"/> <path d=\"M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2\"/> <path d=\"M12 11h4\"/> <path d=\"M12 16h4\"/> <path d=\"M8 11h.01\"/> <path d=\"M8 16h.01\"/>","receipt":"<path d=\"M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z\"/> <path d=\"M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8\"/> <path d=\"M12 17.5v-11\"/>","package":"<path d=\"m7.5 4.27 9 5.15\"/> <path d=\"M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z\"/> <path d=\"m3.3 7 8.7 5 8.7-5\"/> <path d=\"M12 22V12\"/>","map-pinned":"<path d=\"M18 8c0 3.613-3.869 7.429-5.393 8.795a1 1 0 0 1-1.214 0C9.87 15.429 6 11.613 6 8a6 6 0 0 1 12 0\"/> <circle cx=\"12\" cy=\"8\" r=\"2\"/> <path d=\"M8.714 14h-3.71a1 1 0 0 0-.948.683l-2.004 6A1 1 0 0 0 3 22h18a1 1 0 0 0 .948-1.316l-2-6a1 1 0 0 0-.949-.684h-3.712\"/>","search":"<circle cx=\"11\" cy=\"11\" r=\"8\"/> <path d=\"m21 21-4.3-4.3\"/>","building-2":"<path d=\"M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z\"/> <path d=\"M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2\"/> <path d=\"M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2\"/> <path d=\"M10 6h4\"/> <path d=\"M10 10h4\"/> <path d=\"M10 14h4\"/> <path d=\"M10 18h4\"/>","clock":"<circle cx=\"12\" cy=\"12\" r=\"10\"/> <polyline points=\"12 6 12 12 16 14\"/>","construction":"<rect x=\"2\" y=\"6\" width=\"20\" height=\"8\" rx=\"1\"/> <path d=\"M17 14v7\"/> <path d=\"M7 14v7\"/> <path d=\"M17 3v3\"/> <path d=\"M7 3v3\"/> <path d=\"M10 14 2.3 6.3\"/> <path d=\"m14 6 7.7 7.7\"/> <path d=\"m8 6 8 8\"/>","signpost":"<path d=\"M12 13v8\"/> <path d=\"M12 3v3\"/> <path d=\"M18 6a2 2 0 0 1 1.387.56l2.307 2.22a1 1 0 0 1 0 1.44l-2.307 2.22A2 2 0 0 1 18 13H6a2 2 0 0 1-1.387-.56l-2.306-2.22a1 1 0 0 1 0-1.44l2.306-2.22A2 2 0 0 1 6 6z\"/>","cable":"<path d=\"M17 21v-2a1 1 0 0 1-1-1v-1a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1\"/> <path d=\"M19 15V6.5a1 1 0 0 0-7 0v11a1 1 0 0 1-7 0V9\"/> <path d=\"M21 21v-2h-4\"/> <path d=\"M3 5h4V3\"/> <path d=\"M7 5a1 1 0 0 1 1 1v1a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a1 1 0 0 1 1-1V3\"/>","badge-check":"<path d=\"M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z\"/> <path d=\"m9 12 2 2 4-4\"/>","layers":"<path d=\"m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z\"/> <path d=\"m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65\"/> <path d=\"m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65\"/>","hammer":"<path d=\"m15 12-8.373 8.373a1 1 0 1 1-3-3L12 9\"/> <path d=\"m18 15 4-4\"/> <path d=\"m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172V7l-2.26-2.26a6 6 0 0 0-4.202-1.756L9 2.96l.92.82A6.18 6.18 0 0 1 12 8.4V10l2 2h1.172a2 2 0 0 1 1.414.586L18.5 14.5\"/>","users":"<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/> <circle cx=\"9\" cy=\"7\" r=\"4\"/> <path d=\"M22 21v-2a4 4 0 0 0-3-3.87\"/> <path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/>","zap":"<path d=\"M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z\"/>","calendar-clock":"<path d=\"M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5\"/> <path d=\"M16 2v4\"/> <path d=\"M8 2v4\"/> <path d=\"M3 10h5\"/> <path d=\"M17.5 17.5 16 16.3V14\"/> <circle cx=\"16\" cy=\"16\" r=\"6\"/>","x":"<path d=\"M18 6 6 18\"/> <path d=\"m6 6 12 12\"/>","banknote":"<rect width=\"20\" height=\"12\" x=\"2\" y=\"6\" rx=\"2\"/> <circle cx=\"12\" cy=\"12\" r=\"2\"/> <path d=\"M6 12h.01M18 12h.01\"/>","landmark":"<line x1=\"3\" x2=\"21\" y1=\"22\" y2=\"22\"/> <line x1=\"6\" x2=\"6\" y1=\"18\" y2=\"11\"/> <line x1=\"10\" x2=\"10\" y1=\"18\" y2=\"11\"/> <line x1=\"14\" x2=\"14\" y1=\"18\" y2=\"11\"/> <line x1=\"18\" x2=\"18\" y1=\"18\" y2=\"11\"/> <polygon points=\"12 2 20 7 4 7\"/>","app-window":"<rect x=\"2\" y=\"4\" width=\"20\" height=\"16\" rx=\"2\"/> <path d=\"M10 4v4\"/> <path d=\"M2 8h20\"/> <path d=\"M6 4v4\"/>","blocks":"<rect width=\"7\" height=\"7\" x=\"14\" y=\"3\" rx=\"1\"/> <path d=\"M10 21V8a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1H3\"/>","hand-coins":"<path d=\"M11 15h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 17\"/> <path d=\"m7 21 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9\"/> <path d=\"m2 16 6 6\"/> <circle cx=\"16\" cy=\"9\" r=\"2.9\"/> <circle cx=\"6\" cy=\"5\" r=\"3\"/>","file-text":"<path d=\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\"/> <path d=\"M14 2v4a2 2 0 0 0 2 2h4\"/> <path d=\"M10 9H8\"/> <path d=\"M16 13H8\"/> <path d=\"M16 17H8\"/>","trees":"<path d=\"M10 10v.2A3 3 0 0 1 8.9 16H5a3 3 0 0 1-1-5.8V10a3 3 0 0 1 6 0Z\"/> <path d=\"M7 16v6\"/> <path d=\"M13 19v3\"/> <path d=\"M12 19h8.3a1 1 0 0 0 .7-1.7L18 14h.3a1 1 0 0 0 .7-1.7L16 9h.2a1 1 0 0 0 .8-1.7L13 3l-1.4 1.5\"/>","container":"<path d=\"M22 7.7c0-.6-.4-1.2-.8-1.5l-6.3-3.9a1.72 1.72 0 0 0-1.7 0l-10.3 6c-.5.2-.9.8-.9 1.4v6.6c0 .5.4 1.2.8 1.5l6.3 3.9a1.72 1.72 0 0 0 1.7 0l10.3-6c.5-.3.9-1 .9-1.5Z\"/> <path d=\"M10 21.9V14L2.1 9.1\"/> <path d=\"m10 14 11.9-6.9\"/> <path d=\"M14 19.8v-8.1\"/> <path d=\"M18 17.5V9.4\"/>","file-check":"<path d=\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\"/> <path d=\"M14 2v4a2 2 0 0 0 2 2h4\"/> <path d=\"m9 15 2 2 4-4\"/>","drafting-compass":"<path d=\"m12.99 6.74 1.93 3.44\"/> <path d=\"M19.136 12a10 10 0 0 1-14.271 0\"/> <path d=\"m21 21-2.16-3.84\"/> <path d=\"m3 21 8.02-14.26\"/> <circle cx=\"12\" cy=\"5\" r=\"2\"/>","wallet":"<path d=\"M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1\"/> <path d=\"M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4\"/>"};
+const CATIC={"etics":"layers","mão de obra":"hard-hat","cobertura":"house","betão":"cuboid","caixilharias":"app-window","ferro":"fence","armação":"grid-3x3","escavações":"shovel","madeira":"trees","bagacina":"mountain","impermebialização":"droplets","blocos":"brick-wall","cimento":"package","manilhas":"circle-dot","carpintaria":"hammer","reboco":"paint-roller","diversos":"boxes","soleiras":"rectangle-horizontal","eletricidade":"zap","aluguer":"key-round","transporte":"truck","canalizações":"wrench","areia":"waves","materiais":"package-open","brita":"blocks","cofragem":"frame","topografia":"map-pinned","segurança":"shield","terreno":"sprout","escritura":"stamp","arquitetura":"drafting-compass","certidão permanente":"file-check","certidão de nº":"file-text","direção de obra":"clipboard-list","parecer águas":"droplets","licença":"badge-check","confrontações":"signpost","documentação":"scroll-text","plástico":"container","placa licenciamento":"construction","pss & gr":"shield","abertura de ramal":"cable","fornecimento eletricidade":"plug","quadro obra":"zap","livro de obra":"book-open","vistoria de imóveis":"search"};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ic=n=>`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${IC[n]||IC.receipt}</svg>`;
+const catIc=c=>ic(CATIC[c.toLowerCase()]||'receipt');
+function eur(n,dec=2){const neg=n<0;n=Math.abs(n);let [i,f]=n.toFixed(dec).split('.');i=i.replace(/\B(?=(\d{3})+(?!\d))/g,' ');return (neg?'−':'')+i+(dec?','+f:'')+' €'}
+const pct=(a,b)=>b?(100*a/b).toFixed(1).replace('.',',')+' %':'–';
+const dmy=s=>s.slice(8,10)+'/'+s.slice(5,7)+'/'+s.slice(0,4);
+const sum=(a,f)=>a.reduce((t,x)=>t+f(x),0);
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const ALL=D.rows.map(r=>({d:r[0],dd:r[1]||dmy(r[0]),s:r[2],e:r[3],c:r[4],v:r[5],iva:r[6],ist:r[7],t:r[8],due:r[9],p:r[10],ev:r[11]}));
+const now=new Date();const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+const dayDiff=s=>Math.round((new Date(s+'T00:00:00')-today)/864e5);
+const late=x=>!x.p&&x.due&&dayDiff(x.due)<0;
+const F={s:'',c:'',e:''};
+let O=ALL;
+const MES=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+
+// títulos com ícone
+[['hCum','trending-up','Investimento acumulado'],['hEst','circle-check','Estado dos pagamentos'],['hPer','calendar-clock','Despesa por período'],['hComp','layers','Obra e projeto'],['hCat','boxes','Por descrição'],['hEnt','building-2','Por entidade'],['hFin','hand-coins','Financiamento e empréstimos'],['hDue','clock','Pagamentos pendentes'],['hLed','receipt','Lançamentos']].forEach(([id,i,t])=>$(id).innerHTML=ic(i)+'<span>'+t+'</span>');
+$('logo').innerHTML=ic('house');$('src').insertAdjacentHTML('afterbegin',ic('file-text'));
+
+// ---------- gráficos (Chart.js)
+const charts={};
+function baseOpts(){Chart.defaults.font.family=css('--body');Chart.defaults.font.size=12;Chart.defaults.color=css('--muted');Chart.defaults.borderColor=css('--line');Chart.defaults.animation=false}
+const tipStyle=()=>({backgroundColor:css('--ink'),titleColor:css('--bg'),bodyColor:css('--bg'),padding:10,cornerRadius:8,displayColors:true,boxPadding:4});
+function mk(id,cfg){if(charts[id])charts[id].destroy();charts[id]=new Chart($(id),cfg)}
+function donut(id,items,onClick){
+  mk(id,{type:'doughnut',data:{labels:items.map(i=>i.l),datasets:[{data:items.map(i=>i.v),backgroundColor:items.map(i=>css(i.c)),borderColor:css('--surface'),borderWidth:2,hoverOffset:4}]},
+   options:{responsive:true,maintainAspectRatio:false,cutout:'68%',onClick:(e,els)=>{if(onClick&&els.length)onClick(items[els[0].index])},onHover:(e,els)=>{e.native.target.style.cursor=onClick&&els.length?'pointer':'default'},
+    plugins:{legend:{display:false},tooltip:{...tipStyle(),callbacks:{label:c=>{const t=c.dataset.data.reduce((a,b)=>a+b,0);return ' '+eur(c.parsed)+' ('+pct(c.parsed,t)+')'}}}}}});
+}
+function legend(el,items,tot){$(el).innerHTML=items.map(i=>`<div><i style="--c:var(${i.c})"></i><span title="${esc(i.l)}">${esc(i.l)}</span><b class="num">${eur(i.v,0)}</b><em class="num">${pct(i.v,tot)}</em></div>`).join('')}
+const kEur=v=>v>=1000?(v/1000).toLocaleString('pt-PT')+' k€':v+' €';
+
+function drawCharts(){
+  baseOpts();
+  const tot=sum(O,x=>x.t),paid=sum(O,x=>x.p?x.t:0),over=sum(O,x=>late(x)?x.t:0),up=tot-paid-over;
+  // acumulado por mês
+  if(O.length){
+    const first=O.reduce((m,x)=>x.d<m?x.d:m,'9'),last=O.reduce((m,x)=>x.d>m?x.d:m,'');
+    const mk0=+first.slice(0,4)*12+ +first.slice(5,7)-1,mk1=+last.slice(0,4)*12+ +last.slice(5,7)-1;
+    const mon=Array(mk1-mk0+1).fill(0),monP=Array(mk1-mk0+1).fill(0),monU=Array(mk1-mk0+1).fill(0);
+    O.forEach(x=>{const i=+x.d.slice(0,4)*12+ +x.d.slice(5,7)-1-mk0;mon[i]+=x.t;x.p?monP[i]+=x.t:monU[i]+=x.t});
+    const labs=mon.map((_,i)=>{const k=mk0+i;return MES[k%12]+' '+String(Math.floor(k/12)).slice(2)});
+    let acc=0;const cum=mon.map(v=>acc+=v);
+    const ctx=$('cCum').getContext('2d');const g=ctx.createLinearGradient(0,0,0,270);g.addColorStop(0,css('--primary')+'66');g.addColorStop(1,css('--primary')+'05');
+    mk('cCum',{type:'line',data:{labels:labs,datasets:[{label:'Acumulado',data:cum,borderColor:css('--primary'),backgroundColor:g,fill:true,borderWidth:2.5,tension:.25,pointRadius:cum.map((_,i)=>i===cum.length-1?5:0),pointHoverRadius:6,pointBackgroundColor:css('--primary'),pointBorderColor:css('--surface'),pointBorderWidth:2}]},
+      options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{...tipStyle(),displayColors:false,callbacks:{label:c=>'Acumulado '+eur(c.parsed.y),afterLabel:c=>'No mês '+eur(mon[c.dataIndex])}}},
+       scales:{x:{grid:{display:false},ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:10}},y:{beginAtZero:true,border:{display:false},ticks:{callback:kEur,maxTicksLimit:6}}}}});
+    // período: mês até 18 meses, senão trimestre
+    const byQ=mon.length>18;let L=labs,P=monP,U=monU;
+    if(byQ){const q={};mon.forEach((_,i)=>{const k=mk0+i,y=Math.floor(k/12),qq=Math.floor((k%12)/3),key=y*4+qq;q[key]=q[key]||{l:'T'+(qq+1)+' '+String(y).slice(2),p:0,u:0};q[key].p+=monP[i];q[key].u+=monU[i]});
+      const ks=Object.keys(q).map(Number).sort((a,b)=>a-b),full=[];for(let k=ks[0];k<=ks[ks.length-1];k++)full.push(q[k]||{l:'T'+(k%4+1)+' '+String(Math.floor(k/4)).slice(2),p:0,u:0});
+      L=full.map(x=>x.l);P=full.map(x=>x.p);U=full.map(x=>x.u)}
+    $('hPer').lastChild.textContent=byQ?'Despesa por trimestre':'Despesa por mês';
+    mk('cPer',{type:'bar',data:{labels:L,datasets:[{label:'Pago',data:P,backgroundColor:css('--primary'),borderRadius:4,stack:'a',maxBarThickness:38,borderColor:css('--surface'),borderWidth:{top:0,bottom:0,left:0,right:0}},{label:'Por pagar',data:U,backgroundColor:css('--due'),borderRadius:4,stack:'a',maxBarThickness:38}]},
+      options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'top',align:'start',labels:{usePointStyle:true,pointStyle:'rectRounded',boxWidth:10,boxHeight:10,color:css('--ink2')}},tooltip:{...tipStyle(),callbacks:{label:c=>' '+c.dataset.label+' '+eur(c.parsed.y),footer:it=>'Total '+eur(it.reduce((a,b)=>a+b.parsed.y,0))}}},
+       scales:{x:{stacked:true,grid:{display:false},ticks:{maxRotation:0,autoSkip:true}},y:{stacked:true,beginAtZero:true,border:{display:false},ticks:{callback:kEur,maxTicksLimit:6}}}}});
+  }
+  // estado
+  const est=[{l:'Pago',v:paid,c:'--primary'},{l:'Por pagar, vencido',v:over,c:'--crit'},{l:'Por pagar, a vencer',v:up,c:'--due'}].filter(i=>i.v>0);
+  donut('cEst',est);legend('lgEst',est,tot);$('estMid').textContent=pct(paid,tot);
+  // obra / projeto
+  const comp=[{l:'Obra',v:sum(O,x=>x.s==='Obra'?x.t:0),c:'--primary',k:'Obra'},{l:'Projeto',v:sum(O,x=>x.s==='Projeto'?x.t:0),c:'--sky',k:'Projeto'}].filter(i=>i.v>0);
+  donut('cComp',comp,i=>{F.s=F.s===i.k?'':i.k;apply()});legend('lgComp',comp,tot);$('compMid').textContent=eur(tot,0);
+  // financiamento (global)
+  const T=sum(ALL,x=>x.t),Pd=sum(ALL,x=>x.p?x.t:0),used=sum(D.emp,r=>r[3]);
+  const shades=['--navy','--primary','--cyan','--sky','--steel','--ice'];
+  const fin=D.emp.filter(r=>r[3]>0).map((r,i)=>({l:r[0]+(D.emp.filter(q=>q[0]===r[0]).length>1?' ('+eur(r[1],0)+')':''),v:r[3],c:shades[i%shades.length]}));
+  if(Pd-used>0.005)fin.push({l:'Outras fontes',v:Pd-used,c:'--slate'});
+  fin.push({l:'Por pagar',v:T-Pd,c:'--due'});
+  donut('cFin',fin);legend('lgFin',fin,T);$('finMid').textContent=eur(T,0);
+}
+
+// ---------- indicadores
+function drawKpis(){
+  const tot=sum(O,x=>x.t),paid=sum(O,x=>x.p?x.t:0),U=O.filter(x=>!x.p),unpaid=tot-paid,over=sum(U,x=>late(x)?x.t:0);
+  const avail=sum(D.emp,r=>r[2]),debt=sum(D.emp,r=>r[5]);
+  $('kpis').innerHTML=[
+   ['landmark','Investimento',eur(tot),O.length+' lançamentos','blue'],
+   ['circle-check','Pago',eur(paid),pct(paid,tot)+' do total',''],
+   ['clock','Por pagar',eur(unpaid),U.length+(U.length===1?' lançamento':' lançamentos'),unpaid?'warn':''],
+   ['triangle-alert','Vencido',eur(over),over?'Prazo ultrapassado':'Nada em atraso',over?'crit':''],
+   ['wallet','Disponível nos empréstimos',eur(avail),'Cobre '+pct(avail,sum(ALL,x=>x.p?0:x.t))+' do que falta pagar','blue'],
+   ['banknote','Em dívida',eur(debt),D.emp.length+' empréstimos','blue'],
+  ].map(k=>`<div class="kpi ${k[4]}"><div class="top"><span class="badge">${ic(k[0])}</span><span>${k[1]}</span></div><b class="num">${k[2]}</b><small>${k[3]}</small></div>`).join('');
+}
+
+// ---------- barras com filtro cruzado
+function bars(el,key,keep,withIc){
+  const base=ALL.filter(x=>(!F.s||x.s===F.s)&&(key==='c'?(!F.e||x.e===F.e):(!F.c||x.c===F.c)));
+  const g={};base.forEach(x=>{const k=x[key];g[k]=g[k]||{k,p:0,u:0};x.p?g[k].p+=x.t:g[k].u+=x.t});
+  let all=Object.values(g).sort((a,b)=>(b.p+b.u)-(a.p+a.u));const tot=sum(base,x=>x.t);
+  let top=all.slice(0,keep);const sel=F[key];
+  if(sel&&!top.some(r=>r.k===sel)){const s=all.find(r=>r.k===sel);if(s)top[keep-1]=s}
+  const rest=all.filter(r=>!top.includes(r));
+  if(rest.length)top.push({k:'Outras ('+rest.length+')',p:sum(rest,r=>r.p),u:sum(rest,r=>r.u),other:1});
+  const max=Math.max(1,...top.map(r=>r.p+r.u));
+  el.className='bars'+(sel?' has-sel':'');
+  el.innerHTML=top.map(r=>`<button type="button" class="bar${withIc?'':' noic'}" aria-pressed="${!r.other&&sel===r.k}" title="${esc(r.k)}: ${eur(r.p+r.u)} (${pct(r.p+r.u,tot)})${r.u?' · por pagar '+eur(r.u):''}">${withIc?`<span class="bi">${r.other?ic('boxes'):catIc(r.k)}</span>`:''}<span class="lab">${esc(r.k)}</span><span class="track">${r.p>0?`<i style="width:${100*r.p/max}%"></i>`:''}${r.u>0?`<i class="p" style="width:${100*r.u/max}%"></i>`:''}</span><span class="val num">${eur(r.p+r.u,0)}</span></button>`).join('');
+  el.querySelectorAll('.bar').forEach((b,i)=>{const r=top[i];b.addEventListener('click',()=>{if(r.other)return;F[key]=F[key]===r.k?'':r.k;apply()})});
+}
+
+// ---------- financiamento (global)
+function drawLoans(){
+  const T=sum(ALL,x=>x.t),Pd=sum(ALL,x=>x.p?x.t:0),unpaid=T-Pd;
+  const ini=sum(D.emp,r=>r[1]),avail=sum(D.emp,r=>r[2]),used=sum(D.emp,r=>r[3]),paidL=sum(D.emp,r=>r[4]),debt=sum(D.emp,r=>r[5]),gap=unpaid-avail;
+  $('empTxt').innerHTML=`<span class="num">${eur(used)}</span> consumidos de <span class="num">${eur(ini)}</span>`;
+  $('facts').innerHTML=[
+   ['Pago com empréstimos',eur(used),pct(used,T)+' do investimento'],
+   ['Pago por outras fontes',eur(Pd-used),pct(Pd-used,T)+' do investimento'],
+   [gap>0?'Por pagar sem cobertura':'Folga nos empréstimos',eur(Math.abs(gap)),'Por pagar menos o disponível'],
+   ['Amortizado',eur(paidL),'Em dívida '+eur(debt)],
+  ].map(f=>`<div><span>${f[0]}</span><b class="num">${f[1]}</b><small>${f[2]}</small></div>`).join('');
+  const C=2*Math.PI*26;
+  $('loans').innerHTML=D.emp.map(r=>{const p=r[1]?r[3]/r[1]:0;const bank=/nbda|cetelem|banco|caixa/i.test(r[0]);
+    return `<div class="loan"><div class="ring"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="var(--chip)" stroke-width="8"/><circle cx="32" cy="32" r="26" fill="none" stroke="var(--cyan)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${(C*p).toFixed(1)} ${C.toFixed(1)}"/></svg><span class="num">${Math.round(100*p)}%</span></div>
+    <div style="min-width:0"><h3>${ic(bank?'landmark':'users')}<span>${esc(r[0])}</span></h3><dl><dt>Inicial</dt><dd class="num">${eur(r[1],0)}</dd><dt>Consumido</dt><dd class="num">${eur(r[3])}</dd><dt>Disponível</dt><dd class="num">${eur(r[2])}</dd><dt>Em dívida</dt><dd class="num">${eur(r[5],0)}</dd></dl></div></div>`}).join('');
+}
+
+// ---------- pendentes
+function drawDue(){
+  const U=O.filter(x=>!x.p),unpaid=sum(U,x=>x.t);
+  const g={};U.forEach(x=>{const k=x.due+'|'+x.e+'|'+x.c;(g[k]=g[k]||{due:x.due,e:x.e,c:x.c,t:0});g[k].t+=x.t});
+  const rows=Object.values(g).sort((a,b)=>a.due<b.due?-1:a.due>b.due?1:b.t-a.t);
+  const pill=d=>d<0?`<span class="pill crit">${ic('triangle-alert')}Vencido há ${-d} dia${d===-1?'':'s'}</span>`:d===0?`<span class="pill warn">${ic('clock')}Vence hoje</span>`:`<span class="pill warn">${ic('clock')}Vence em ${d} dia${d===1?'':'s'}</span>`;
+  $('due').innerHTML=rows.length?'<thead><tr><th>Vencimento</th><th>Entidade</th><th>Descrição</th><th>Estado</th><th class="r">Total</th></tr></thead><tbody>'+
+    rows.map(r=>`<tr><td class="num">${dmy(r.due)}</td><td>${esc(r.e)}</td><td><span class="cat">${catIc(r.c)}${esc(r.c)}</span></td><td>${pill(dayDiff(r.due))}</td><td class="r num">${eur(r.t)}</td></tr>`).join('')+
+    `</tbody><tfoot><tr><td colspan="4">Total por pagar</td><td class="r num">${eur(unpaid)}</td></tr></tfoot>`
+    :'<tbody><tr><td>Não há pagamentos pendentes com estes filtros.</td></tr></tbody>';
+}
+
+// ---------- lançamentos
+const COLS=[['d','Data',0],['s','Folha',0],['e','Entidade',0],['c','Descrição',0],['v','Valor',1],['iva','IVA',1],['ist','IS + IMT',1],['t','Total',1],['due','Vencimento',0],['p','Estado',0],['ev','Evasão Fiscal',1]];
+let sortK='d',sortDir=-1;
+function drawLedger(){
+  const q=$('q').value.trim().toLowerCase(),fp=$('fPago').value;
+  const rows=O.filter(x=>(fp===''||x.p==+fp)&&(!q||(x.e+' '+x.c).toLowerCase().includes(q)));
+  rows.sort((a,b)=>{const A=a[sortK]??'',B=b[sortK]??'';return (typeof A==='string'?A.localeCompare(B,'pt'):A-B)*sortDir});
+  $('ledger').innerHTML='<thead><tr>'+COLS.map(c=>`<th class="${c[2]?'r':''}" data-k="${c[0]}" tabindex="0" ${sortK===c[0]?`aria-sort="${sortDir>0?'ascending':'descending'}"`:''}>${c[1]}</th>`).join('')+'</tr></thead><tbody>'+
+   (rows.length?rows.map(x=>`<tr><td class="num">${x.dd}</td><td>${x.s}</td><td>${esc(x.e)}</td><td><span class="cat">${catIc(x.c)}${esc(x.c)}</span></td><td class="r num">${eur(x.v)}</td><td class="r num">${eur(x.iva)}</td><td class="r num">${x.ist?eur(x.ist):'–'}</td><td class="r num">${eur(x.t)}</td><td class="num">${x.due?dmy(x.due):'–'}</td><td>${x.p?'<span class="pill good">Pago</span>':late(x)?'<span class="pill crit">Vencido</span>':'<span class="pill warn">Por pagar</span>'}</td><td class="r num">${x.ev?eur(x.ev):'–'}</td></tr>`).join(''):'<tr><td colspan="11">Nenhum lançamento corresponde aos filtros.</td></tr>')+
+   `</tbody><tfoot><tr><td colspan="4">Total filtrado</td><td class="r num">${eur(sum(rows,x=>x.v))}</td><td class="r num">${eur(sum(rows,x=>x.iva))}</td><td class="r num">${eur(sum(rows,x=>x.ist))}</td><td class="r num">${eur(sum(rows,x=>x.t))}</td><td colspan="2"></td><td class="r num">${eur(sum(rows,x=>x.ev))}</td></tr></tfoot>`;
+  $('count').textContent=rows.length+' de '+ALL.length+' lançamentos';
+  $('ledger').querySelectorAll('th').forEach(th=>{const go=()=>{const k=th.dataset.k;if(sortK===k)sortDir=-sortDir;else{sortK=k;sortDir=1}drawLedger()};th.onclick=go;th.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}}});
+}
+
+function drawActive(){
+  const a=[];if(F.s)a.push(['s','Folha: '+F.s]);if(F.c)a.push(['c','Descrição: '+F.c]);if(F.e)a.push(['e','Entidade: '+F.e]);
+  const el=$('active');el.hidden=!a.length;
+  el.innerHTML='<span>Filtros ativos</span>'+a.map(x=>`<button type="button" class="chipx" data-k="${x[0]}" aria-label="Remover filtro ${esc(x[1])}">${esc(x[1])}${ic('x')}</button>`).join('');
+  el.querySelectorAll('.chipx').forEach(b=>b.addEventListener('click',()=>{F[b.dataset.k]='';apply()}));
+  document.querySelectorAll('.seg button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.s===F.s)));
+}
+function apply(){
+  O=ALL.filter(x=>(!F.s||x.s===F.s)&&(!F.c||x.c===F.c)&&(!F.e||x.e===F.e));
+  drawActive();drawKpis();bars($('cats'),'c',12,true);bars($('ents'),'e',12,false);drawDue();drawLedger();
+  if(window.Chart)drawCharts();
+}
+document.querySelectorAll('.seg button').forEach(b=>b.addEventListener('click',()=>{F.s=b.dataset.s;apply()}));
+['q','fPago'].forEach(id=>$(id).addEventListener('input',drawLedger));
+$('clear').addEventListener('click',()=>{$('q').value='';$('fPago').value='';F.s=F.c=F.e='';apply()});
+
+(function(){
+  const last=ALL.reduce((m,x)=>x.d>m?x.d:m,'');const iso=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+  $('asof').textContent='Moradia Paulo & Teresa, Nordeste. Dados da folha em '+dmy(D.asof)+', último lançamento a '+dmy(last)+'.';
+  $('foot').textContent='A folha Projeto não tem colunas de vencimento, pagamento nem Evasão Fiscal: os seus lançamentos contam como pagos. A coluna Evasão Fiscal reproduz a da folha Obra (16 % sobre os lançamentos sem IVA).'+(D.skipped.length?' Fora das contas, por ainda não ter valor: '+D.skipped.join('; ')+'.':'');
+})();
+drawLoans();apply();
+if(!window.Chart)document.querySelectorAll('.cv,.donut').forEach(e=>e.insertAdjacentHTML('beforeend','<p class="note">Não foi possível carregar os gráficos. Recarregue a página para tentar de novo.</p>'));
+// redesenhar os gráficos quando o tema muda
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>window.Chart&&drawCharts());
+new MutationObserver(()=>window.Chart&&drawCharts()).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+</script>
