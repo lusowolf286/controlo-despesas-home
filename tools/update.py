@@ -16,17 +16,19 @@ ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 xlsx=sys.argv[1]; pw=os.environ['DASH_PW']
 wb=openpyxl.load_workbook(xlsx,data_only=True)
 def head(ws,n): return [str(c or '').strip() for c in next(ws.iter_rows(values_only=True))][:n]
-assert head(wb['Obra'],12)==['Data','Entidade','Descrição','Valor','IVA','IS','IMT','TOTAL','Acumulado','Vencimento','Pago?','Evasão Fiscal'],'colunas da folha Obra mudaram'
+OBRA=('Tosco','Acabamentos')  # livros da obra, cada um é uma componente
+for n in OBRA: assert head(wb[n],12)==['Data','Entidade','Descrição','Valor','IVA','IS','IMT','TOTAL','Acumulado','Vencimento','Pago?','Evasão Fiscal'],f'colunas da folha {n} mudaram'
 assert head(wb['Projeto'],9)==['Data','Entidade','Descrição','Valor','IVA','IS','IMT','TOTAL','Acumulado'],'colunas da folha Projeto mudaram'
 assert head(wb['Empréstimos'],6)==['Entidade','Saldo Inicial','Disponível','Consumido','Pago','Em Dívida'],'colunas da folha Empréstimos mudaram'
 fmt=[c[0].number_format for c in wb['Projeto'].iter_rows()][1:]
 R=[];skipped=[];chk=0
-for r in list(wb['Obra'].iter_rows(values_only=True))[1:]:
-    if r[0] is None: continue
+for n in OBRA:
+  for r in list(wb[n].iter_rows(values_only=True))[1:]:
+    if r[0] is None or not str(r[1] or '').strip(): continue
     if r[3] is None:
-        skipped.append(f"{r[0].strftime('%d/%m/%Y')}, {r[1]}, {r[2]}"); continue
+        skipped.append(f"{n}: {r[0].strftime('%d/%m/%Y')}, {r[1]}, {r[2]}"); continue
     chk+=r[7] or 0
-    R.append([r[0].strftime('%Y-%m-%d'),None,'Obra',r[1].strip(),r[2].strip(),round(r[3] or 0,2),round(r[4] or 0,2),round((r[5] or 0)+(r[6] or 0),2),round(r[7] or 0,2),r[9].strftime('%Y-%m-%d'),1 if r[10] else 0,round(r[11] or 0,2)])
+    R.append([r[0].strftime('%Y-%m-%d'),None,n,r[1].strip(),r[2].strip(),round(r[3] or 0,2),round(r[4] or 0,2),round((r[5] or 0)+(r[6] or 0),2),round(r[7] or 0,2),r[9].strftime('%Y-%m-%d'),1 if r[10] else 0,round(r[11] or 0,2)])
 for i,r in enumerate(list(wb['Projeto'].iter_rows(values_only=True))[1:]):
     if r[0] is None: continue
     chk+=r[7] or 0

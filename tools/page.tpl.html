@@ -129,7 +129,8 @@ tfoot td{font-weight:700;border-top:1px solid var(--line);border-bottom:0}
     <div class="tools">
       <div class="seg" role="group" aria-label="Âmbito">
         <button type="button" data-s="" aria-pressed="true">Tudo</button>
-        <button type="button" data-s="Obra" aria-pressed="false">Obra</button>
+        <button type="button" data-s="Tosco" aria-pressed="false">Tosco</button>
+        <button type="button" data-s="Acabamentos" aria-pressed="false">Acabamentos</button>
         <button type="button" data-s="Projeto" aria-pressed="false">Projeto</button>
       </div>
       <a href="https://docs.google.com/spreadsheets/d/1aDvn-ulonQT7NRuyR-IaVvHWW9pkXa6xvmjxJCxdPJE/edit" id="src">Abrir a folha</a>
@@ -159,7 +160,7 @@ tfoot td{font-weight:700;border-top:1px solid var(--line);border-bottom:0}
     </section>
     <section class="panel">
       <div class="ph"><h2 id="hComp"></h2><p>Clique para filtrar</p></div>
-      <div class="donut"><canvas id="cComp" role="img" aria-label="Obra e projeto"></canvas><div class="mid"><b class="num" id="compMid"></b><span>total</span></div></div>
+      <div class="donut"><canvas id="cComp" role="img" aria-label="Tosco, acabamentos e projeto"></canvas><div class="mid"><b class="num" id="compMid"></b><span>total</span></div></div>
       <div class="lg" id="lgComp"></div>
     </section>
   </div>
@@ -230,7 +231,7 @@ let O=ALL;
 const MES=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
 
 // títulos com ícone
-[['hCum','trending-up','Investimento acumulado'],['hEst','circle-check','Estado dos pagamentos'],['hPer','calendar-clock','Despesa por período'],['hComp','layers','Obra e projeto'],['hCat','boxes','Por descrição'],['hEnt','building-2','Por entidade'],['hFin','hand-coins','Financiamento e empréstimos'],['hDue','clock','Pagamentos pendentes'],['hLed','receipt','Lançamentos']].forEach(([id,i,t])=>$(id).innerHTML=ic(i)+'<span>'+t+'</span>');
+[['hCum','trending-up','Investimento acumulado'],['hEst','circle-check','Estado dos pagamentos'],['hPer','calendar-clock','Despesa por período'],['hComp','layers','Componentes'],['hCat','boxes','Por descrição'],['hEnt','building-2','Por entidade'],['hFin','hand-coins','Financiamento e empréstimos'],['hDue','clock','Pagamentos pendentes'],['hLed','receipt','Lançamentos']].forEach(([id,i,t])=>$(id).innerHTML=ic(i)+'<span>'+t+'</span>');
 $('logo').innerHTML=ic('house');$('src').insertAdjacentHTML('afterbegin',ic('file-text'));
 
 // ---------- gráficos (Chart.js)
@@ -275,7 +276,7 @@ function drawCharts(){
   const est=[{l:'Pago',v:paid,c:'--primary'},{l:'Por pagar, vencido',v:over,c:'--crit'},{l:'Por pagar, a vencer',v:up,c:'--due'}].filter(i=>i.v>0);
   donut('cEst',est);legend('lgEst',est,tot);$('estMid').textContent=pct(paid,tot);
   // obra / projeto
-  const comp=[{l:'Obra',v:sum(O,x=>x.s==='Obra'?x.t:0),c:'--primary',k:'Obra'},{l:'Projeto',v:sum(O,x=>x.s==='Projeto'?x.t:0),c:'--sky',k:'Projeto'}].filter(i=>i.v>0);
+  const comp=[['Tosco','--primary'],['Acabamentos','--cyan'],['Projeto','--sky']].map(([k,c])=>({l:k,v:sum(O,x=>x.s===k?x.t:0),c,k})).filter(i=>i.v>0);
   donut('cComp',comp,i=>{F.s=F.s===i.k?'':i.k;apply()});legend('lgComp',comp,tot);$('compMid').textContent=eur(tot,0);
   // financiamento (global)
   const T=sum(ALL,x=>x.t),Pd=sum(ALL,x=>x.p?x.t:0),used=sum(D.emp,r=>r[3]);
@@ -377,7 +378,7 @@ $('clear').addEventListener('click',()=>{$('q').value='';$('fPago').value='';F.s
 (function(){
   const last=ALL.reduce((m,x)=>x.d>m?x.d:m,'');const iso=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
   $('asof').textContent='Moradia Paulo & Teresa, Nordeste. Dados da folha em '+dmy(D.asof)+', último lançamento a '+dmy(last)+'.';
-  $('foot').textContent='A folha Projeto não tem colunas de vencimento, pagamento nem Evasão Fiscal: os seus lançamentos contam como pagos. A coluna Evasão Fiscal reproduz a da folha Obra (16 % sobre os lançamentos sem IVA).'+(D.skipped.length?' Fora das contas, por ainda não ter valor: '+D.skipped.join('; ')+'.':'');
+  $('foot').textContent='A folha Projeto não tem colunas de vencimento, pagamento nem Evasão Fiscal: os seus lançamentos contam como pagos. A coluna Evasão Fiscal reproduz a das folhas Tosco e Acabamentos (16 % sobre os lançamentos sem IVA).'+(D.skipped.length?' Fora das contas, por ainda não ter valor: '+D.skipped.join('; ')+'.':'');
 })();
 drawLoans();apply();
 if(!window.Chart)document.querySelectorAll('.cv,.donut').forEach(e=>e.insertAdjacentHTML('beforeend','<p class="note">Não foi possível carregar os gráficos. Recarregue a página para tentar de novo.</p>'));
