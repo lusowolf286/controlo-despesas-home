@@ -13,11 +13,14 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
 warnings.filterwarnings('ignore')
 ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0,os.path.join(ROOT,'tools'))
+from classificacao import entidade as _ent, descricao as _desc  # reclassificação (ver tools/classificacao.py)
 xlsx=sys.argv[1]; pw=os.environ['DASH_PW']
 wb=openpyxl.load_workbook(xlsx,data_only=True)
 def head(ws,n): return [str(c or '').strip() for c in next(ws.iter_rows(values_only=True))][:n]
 OBRA=('Tosco','Acabamentos')  # livros da obra, cada um é uma componente
-for n in OBRA: assert head(wb[n],12)==['Data','Entidade','Descrição','Valor','IVA','IS','IMT','TOTAL','Acumulado','Vencimento','Pago?','Evasão Fiscal'],f'colunas da folha {n} mudaram'
+# a coluna L chama-se «Evasão Fiscal» ou «Isento» (renomeada na folha Tosco em 12/11/2026; mesma fórmula)
+for n in OBRA: assert head(wb[n],11)==['Data','Entidade','Descrição','Valor','IVA','IS','IMT','TOTAL','Acumulado','Vencimento','Pago?'] and head(wb[n],12)[11] in ('Evasão Fiscal','Isento'),f'colunas da folha {n} mudaram'
 assert head(wb['Projeto'],9)==['Data','Entidade','Descrição','Valor','IVA','IS','IMT','TOTAL','Acumulado'],'colunas da folha Projeto mudaram'
 assert head(wb['Empréstimos'],6)==['Entidade','Saldo Inicial','Disponível','Consumido','Pago','Em Dívida'],'colunas da folha Empréstimos mudaram'
 fmt=[c[0].number_format for c in wb['Projeto'].iter_rows()][1:]
@@ -51,6 +54,9 @@ for i,r in enumerate(list(wb['Projeto'].iter_rows(values_only=True))[1:]):
     if not linha_ok('Projeto',i,r,False): continue
     confere('Projeto',i,r); chk+=r[7]
     R.append([r[0].strftime('%Y-%m-%d'),r[0].strftime('%m/%Y') if 'd' not in fmt[i] else None,'Projeto',txt(r[1]),txt(r[2]),round(num(r[3]) or 0,2),round(num(r[4]) or 0,2),round((num(r[5]) or 0)+(num(r[6]) or 0),2),round(r[7],2),None,1,0])
+_conh=sorted({r[3] for r in R})
+for r in R:
+    r[3]=_ent(r[3],_conh); r[4]=_desc(r[2],r[3],r[4],r[8])[0]
 if erros: sys.exit('Linhas inválidas na exportação (nada foi publicado):\n- '+'\n- '.join(erros))
 cnt=collections.Counter(r[4] for r in R); best={}
 for c,n in cnt.items():
