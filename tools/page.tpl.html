@@ -348,7 +348,9 @@ function drawDue(){
   $('dueTabs').innerHTML=opts.map(([k,l,a])=>`<button type="button" data-k="${k}" aria-pressed="${dueF===k}"${k==='late'&&a.length?' class="crit"':''}>${l}<span class="num">${a.length} · ${eur(sum(a,x=>x.t),0)}</span></button>`).join('');
   $('dueTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{dueF=b.dataset.k;drawDue()});
   const U=dueF==='late'?UL:dueF==='next'?UN:U0,unpaid=sum(U,x=>x.t);
-  const g={};U.forEach(x=>{const k=x.due+'|'+x.e+'|'+x.c;(g[k]=g[k]||{due:x.due,e:x.e,c:x.c,t:0});g[k].t+=x.t});
+  // regime de IVA: separa o isento do normal nas entidades que têm pendentes nos dois regimes (p. ex. Albano Vieira)
+  const reg=x=>x.iva===0&&x.v!==0?'isento de IVA':'com IVA',P0=ALL.filter(x=>!x.p&&x.due),dois=new Set([...new Set(P0.map(x=>x.e))].filter(e=>new Set(P0.filter(x=>x.e===e).map(reg)).size>1));
+  const g={};U.forEach(x=>{const rg=dois.has(x.e)?reg(x):'',k=x.due+'|'+x.e+'|'+rg+'|'+x.c;(g[k]=g[k]||{due:x.due,e:x.e+(rg?' ('+rg+')':''),c:x.c,t:0});g[k].t+=x.t});
   const rows=Object.values(g).sort((a,b)=>a.due<b.due?-1:a.due>b.due?1:b.t-a.t);
   const totLab=dueF==='late'?'Total vencido':dueF==='next'?'Total a vencer':'Total por pagar';
   const pill=d=>d<0?`<span class="pill crit">${ic('triangle-alert')}Vencido há ${-d} dia${d===-1?'':'s'}</span>`:d===0?`<span class="pill warn">${ic('clock')}Vence hoje</span>`:`<span class="pill warn">${ic('clock')}Vence em ${d} dia${d===1?'':'s'}</span>`;
