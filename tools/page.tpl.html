@@ -5,8 +5,8 @@
 :root{
   --bg:#191c20; --surface:#23272d; --ink:#e8edf1; --ink2:#b2bcc6; --muted:#87929d; --line:#343b44; --chip:#2d343c;
   --band:#22282f; --band2:#1c4560; --on-band:#eef5fa; --on-band2:#a9c3d6;
-  --primary:#3987e5; --sky:#8cc8f7; --cyan:#58c4e6; --navy:#2a5ea8; --steel:#7f9cc0; --ice:#c4dcf2; --slate:#566a7f;
-  --due:#c23a5a; --due-text:#f08ba3; --due-soft:#45202c; --crit:#ff9d8a; --crit-soft:#4a2a24; --paid-soft:#1d3552;
+  --primary:#3987e5; --sky:#8cc8f7; --cyan:#58c4e6; --navy:#2a5ea8; --steel:#7f9cc0; --ice:#c4dcf2; --slate:#6f8296;
+  --due:#d9506f; --due-text:#f08ba3; --due-soft:#45202c; --crit:#ff9d8a; --crit-soft:#4a2a24; --paid-soft:#1d3552;
   --display:"Sora","Segoe UI",system-ui,sans-serif; --body:"Figtree","Segoe UI",system-ui,sans-serif;
   --shadow:0 1px 0 rgba(255,255,255,.04) inset,0 8px 20px -12px rgba(0,0,0,.6);
   color-scheme:dark;
@@ -43,6 +43,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15p
 .kpi.blue .badge{color:var(--primary)}
 .kpi.warn .badge{background:var(--due-soft);color:var(--due-text)}
 .kpi.crit .badge{background:var(--crit-soft);color:var(--crit)} .kpi.crit b{color:var(--crit)}
+.kpi.soft b{color:var(--ink2);font-weight:600}
 /* painéis */
 .grid{display:grid;gap:18px}
 .g21{grid-template-columns:minmax(0,2fr) minmax(0,1fr)} .g11{grid-template-columns:repeat(2,minmax(0,1fr))} .g12{grid-template-columns:minmax(0,1fr) minmax(0,2fr)}
@@ -64,14 +65,19 @@ body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15p
 .lg em{font-style:normal;color:var(--muted);font-size:12.5px}
 /* barras com ícone */
 .bars{display:flex;flex-direction:column;gap:2px}
-.bar{display:grid;grid-template-columns:30px minmax(0,140px) minmax(0,1fr) auto;gap:10px;align-items:center;background:none;border:0;padding:4px 6px;margin-inline:-6px;border-radius:9px;font:inherit;color:inherit;text-align:left;cursor:pointer}
-.bar.noic{grid-template-columns:minmax(0,170px) minmax(0,1fr) auto}
+.bar{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:4px 10px;align-items:center;background:none;border:0;padding:5px 6px;margin-inline:-6px;border-radius:9px;font:inherit;color:inherit;text-align:left;cursor:pointer;min-height:44px}
+.bar.noic{grid-template-columns:minmax(0,1fr) auto}
+.bar .mid{display:flex;flex-direction:column;gap:4px;min-width:0}
+.bar .val{align-self:end}
+.key{display:inline-flex;gap:12px;align-items:center;font-size:12.5px;color:var(--muted)}
+.key i{display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--primary);margin-right:5px;vertical-align:-1px}
+.key i.p{background:var(--due)}
 .bar:hover{background:var(--chip)} .bar:focus-visible{outline:2px solid var(--primary)}
 .bar[aria-pressed="true"]{background:var(--chip);box-shadow:inset 0 0 0 1.5px var(--primary)}
 .bars.has-sel .bar[aria-pressed="false"]{opacity:.5}
 .bar .bi{width:30px;height:30px;border-radius:8px;background:var(--chip);color:var(--sky);display:grid;place-items:center;font-size:16px}
 .bar .lab{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;font-weight:500}
-.bar .track{height:12px;display:flex;gap:2px;border-radius:6px}
+.bar .track{height:10px;display:flex;gap:2px;border-radius:6px}
 .bar .track i{display:block;height:100%;border-radius:3px;background:var(--primary)}
 .bar .track i.p{background:var(--due)}
 .bar .val{font-size:13px;color:var(--ink2)}
@@ -85,6 +91,22 @@ body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15p
 .loan h3 .ic{color:var(--primary)}
 .loan dl{margin:4px 0 0;display:grid;grid-template-columns:auto 1fr;gap:1px 8px;font-size:12.5px;color:var(--ink2)}
 .loan dt{color:var(--muted)} .loan dd{margin:0;text-align:right}
+.loan.has{border-color:var(--primary);box-shadow:inset 0 0 0 1px var(--primary)}
+.loan .tag{display:inline-block;font-size:11.5px;font-weight:700;color:var(--sky);background:var(--paid-soft);border-radius:999px;padding:1px 8px;margin-bottom:4px;white-space:nowrap}
+/* pendentes agrupados por entidade */
+.grp td{cursor:pointer}
+.grp:hover td{background:var(--chip)}
+.grp .tg{display:inline-flex;align-items:center;gap:8px;background:none;border:0;padding:0;font:inherit;font-weight:700;color:var(--ink);cursor:pointer;text-align:left}
+.grp .tg:focus-visible{outline:2px solid var(--primary);outline-offset:2px;border-radius:4px}
+.grp .tg>.ic{color:var(--muted);transition:transform .15s}
+.grp .tg[aria-expanded="true"]>.ic{transform:rotate(90deg)}
+.grp .sub{display:block;font-weight:500;font-size:12.5px;color:var(--muted)}
+.grp td.r{font-weight:700}
+.det td{background:rgba(255,255,255,.02);font-size:13.5px}
+.det td:first-child{padding-left:34px}
+.mo{display:none}
+.share{display:block;height:4px;border-radius:2px;background:var(--due);margin-top:5px;max-width:100%}
+.share.late{background:var(--crit)}
 .facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 18px}
 .facts div{display:flex;flex-direction:column;gap:1px;min-width:0}
 .facts span{font-size:12.5px;color:var(--muted);font-weight:600}
@@ -120,7 +142,13 @@ tfoot td{font-weight:700;border-top:1px solid var(--line);border-bottom:0}
 .note{font-size:13px;color:var(--muted);margin:0}
 @media (max-width:1080px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:860px){.g21,.g11,.g12{grid-template-columns:minmax(0,1fr)}.facts{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width:520px){.wrap{padding-inline:16px}.kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.kpi{padding:13px}.panel{padding:16px}.band{padding:18px}.bar{grid-template-columns:30px minmax(0,96px) minmax(0,1fr) auto;gap:8px}.bar.noic{grid-template-columns:minmax(0,110px) minmax(0,1fr) auto}.cv{height:230px}}
+@media (max-width:520px){.wrap{padding-inline:16px}.kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.kpi{padding:13px}.panel{padding:16px}.band{padding:18px}.bar{gap:4px 8px}.cv{height:230px}
+  .tools{width:100%}.seg{display:flex;width:100%}.seg button{flex:1 1 auto;min-width:0;padding:8px 7px;min-height:44px;font-size:13.5px}
+  .hm{display:none}.mo{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:5px;font-size:12.5px;color:var(--muted)}
+  #due td,#due th{padding-inline:8px}
+  .tabs button{min-height:44px;align-items:center}.chipx{min-height:36px}
+  .loan dl{font-size:13.5px}.facts span,.facts small{font-size:13px}
+  .det td:first-child{padding-left:20px}}
 </style>
 
 <div class="wrap">
@@ -147,9 +175,15 @@ tfoot td{font-weight:700;border-top:1px solid var(--line);border-bottom:0}
 
   <section class="kpis" id="kpis"></section>
 
+  <section class="panel">
+    <div class="ph"><h2 id="hDue"></h2><p>Por entidade, do maior valor para o menor. Toque numa entidade para ver as faturas. Vencimento estimado: data do lançamento + 30 dias</p></div>
+    <div class="tabs" id="dueTabs" role="group" aria-label="Filtrar por vencimento"></div>
+    <div class="scroll"><table id="due"></table></div>
+  </section>
+
   <div class="grid g21">
     <section class="panel">
-      <div class="ph"><h2 id="hCum"></h2><p>Soma dos lançamentos pela data</p></div>
+      <div class="ph"><h2 id="hCum"></h2><p id="sCum">Soma dos lançamentos pela data</p></div>
       <div class="cv"><canvas id="cCum" role="img" aria-label="Investimento acumulado ao longo do tempo"></canvas></div>
     </section>
     <section class="panel">
@@ -161,7 +195,7 @@ tfoot td{font-weight:700;border-top:1px solid var(--line);border-bottom:0}
 
   <div class="grid g21">
     <section class="panel">
-      <div class="ph"><h2 id="hPer"></h2><p>Pago e por pagar, pela data do lançamento</p></div>
+      <div class="ph"><h2 id="hPer"></h2><p id="sPer">Pago e por pagar, pela data do lançamento</p></div>
       <div class="cv"><canvas id="cPer" role="img" aria-label="Despesa por período"></canvas></div>
     </section>
     <section class="panel">
@@ -173,11 +207,11 @@ tfoot td{font-weight:700;border-top:1px solid var(--line);border-bottom:0}
 
   <div class="grid g11">
     <section class="panel">
-      <div class="ph"><h2 id="hCat"></h2><p>Clique numa categoria para filtrar tudo</p></div>
+      <div class="ph"><h2 id="hCat"></h2><p><span class="key"><span><i></i>Pago</span><span><i class="p"></i>Por pagar</span></span> · Clique numa categoria para filtrar tudo</p></div>
       <div class="bars" id="cats"></div>
     </section>
     <section class="panel">
-      <div class="ph"><h2 id="hEnt"></h2><p>Clique numa entidade para filtrar tudo</p></div>
+      <div class="ph"><h2 id="hEnt"></h2><p><span class="key"><span><i></i>Pago</span><span><i class="p"></i>Por pagar</span></span> · Clique numa entidade para filtrar tudo</p></div>
       <div class="bars" id="ents"></div>
     </section>
   </div>
@@ -197,12 +231,6 @@ tfoot td{font-weight:700;border-top:1px solid var(--line);border-bottom:0}
     <p class="note">A dívida dos empréstimos não soma ao investimento: é uma das fontes que o pagam. «Outras fontes» é a parte já paga que não saiu dos empréstimos registados na folha. Esta secção refere-se sempre ao investimento total, sem filtros.</p>
   </section>
 
-  <section class="panel">
-    <div class="ph"><h2 id="hDue"></h2><p>Vencimento = data do lançamento + 30 dias</p></div>
-    <div class="tabs" id="dueTabs" role="group" aria-label="Filtrar por vencimento"></div>
-    <div class="scroll"><table id="due"></table></div>
-  </section>
-
   <section class="panel" id="ledgerPanel">
     <div class="ph"><h2 id="hLed"></h2><p id="count"></p></div>
     <div class="filters">
@@ -218,7 +246,7 @@ tfoot td{font-weight:700;border-top:1px solid var(--line);border-bottom:0}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
 const D=/*DATA*/;
-const IC={"hard-hat":"<path d=\"M2 18a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v2z\"/> <path d=\"M10 10V5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5\"/> <path d=\"M4 15v-3a6 6 0 0 1 6-6\"/> <path d=\"M14 6a6 6 0 0 1 6 6v3\"/>","fence":"<path d=\"M4 3 2 5v15c0 .6.4 1 1 1h2c.6 0 1-.4 1-1V5Z\"/> <path d=\"M6 8h4\"/> <path d=\"M6 18h4\"/> <path d=\"m12 3-2 2v15c0 .6.4 1 1 1h2c.6 0 1-.4 1-1V5Z\"/> <path d=\"M14 8h4\"/> <path d=\"M14 18h4\"/> <path d=\"m20 3-2 2v15c0 .6.4 1 1 1h2c.6 0 1-.4 1-1V5Z\"/>","rectangle-horizontal":"<rect width=\"20\" height=\"12\" x=\"2\" y=\"6\" rx=\"2\"/>","wrench":"<path d=\"M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z\"/>","waves":"<path d=\"M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1\"/> <path d=\"M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1\"/> <path d=\"M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1\"/>","shield":"<path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\"/>","house":"<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\"/> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/>","cuboid":"<path d=\"m21.12 6.4-6.05-4.06a2 2 0 0 0-2.17-.05L2.95 8.41a2 2 0 0 0-.95 1.7v5.82a2 2 0 0 0 .88 1.66l6.05 4.07a2 2 0 0 0 2.17.05l9.95-6.12a2 2 0 0 0 .95-1.7V8.06a2 2 0 0 0-.88-1.66Z\"/> <path d=\"M10 22v-8L2.25 9.15\"/> <path d=\"m10 14 11.77-6.87\"/>","grid-3x3":"<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"/> <path d=\"M3 9h18\"/> <path d=\"M3 15h18\"/> <path d=\"M9 3v18\"/> <path d=\"M15 3v18\"/>","plug":"<path d=\"M12 22v-5\"/> <path d=\"M9 8V2\"/> <path d=\"M15 8V2\"/> <path d=\"M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z\"/>","paint-roller":"<rect width=\"16\" height=\"6\" x=\"2\" y=\"2\" rx=\"2\"/> <path d=\"M10 16v-2a2 2 0 0 1 2-2h8a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2\"/> <rect width=\"4\" height=\"6\" x=\"8\" y=\"16\" rx=\"1\"/>","shovel":"<path d=\"M2 22v-5l5-5 5 5-5 5z\"/> <path d=\"M9.5 14.5 16 8\"/> <path d=\"m17 2 5 5-.5.5a3.53 3.53 0 0 1-5 0s0 0 0 0a3.53 3.53 0 0 1 0-5L17 2\"/>","triangle-alert":"<path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\"/> <path d=\"M12 9v4\"/> <path d=\"M12 17h.01\"/>","scroll-text":"<path d=\"M15 12h-5\"/> <path d=\"M15 8h-5\"/> <path d=\"M19 17V5a2 2 0 0 0-2-2H4\"/> <path d=\"M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3\"/>","boxes":"<path d=\"M2.97 12.92A2 2 0 0 0 2 14.63v3.24a2 2 0 0 0 .97 1.71l3 1.8a2 2 0 0 0 2.06 0L12 19v-5.5l-5-3-4.03 2.42Z\"/> <path d=\"m7 16.5-4.74-2.85\"/> <path d=\"m7 16.5 5-3\"/> <path d=\"M7 16.5v5.17\"/> <path d=\"M12 13.5V19l3.97 2.38a2 2 0 0 0 2.06 0l3-1.8a2 2 0 0 0 .97-1.71v-3.24a2 2 0 0 0-.97-1.71L17 10.5l-5 3Z\"/> <path d=\"m17 16.5-5-3\"/> <path d=\"m17 16.5 4.74-2.85\"/> <path d=\"M17 16.5v5.17\"/> <path d=\"M7.97 4.42A2 2 0 0 0 7 6.13v4.37l5 3 5-3V6.13a2 2 0 0 0-.97-1.71l-3-1.8a2 2 0 0 0-2.06 0l-3 1.8Z\"/> <path d=\"M12 8 7.26 5.15\"/> <path d=\"m12 8 4.74-2.85\"/> <path d=\"M12 13.5V8\"/>","package-open":"<path d=\"M12 22v-9\"/> <path d=\"M15.17 2.21a1.67 1.67 0 0 1 1.63 0L21 4.57a1.93 1.93 0 0 1 0 3.36L8.82 14.79a1.655 1.655 0 0 1-1.64 0L3 12.43a1.93 1.93 0 0 1 0-3.36z\"/> <path d=\"M20 13v3.87a2.06 2.06 0 0 1-1.11 1.83l-6 3.08a1.93 1.93 0 0 1-1.78 0l-6-3.08A2.06 2.06 0 0 1 4 16.87V13\"/> <path d=\"M21 12.43a1.93 1.93 0 0 0 0-3.36L8.83 2.2a1.64 1.64 0 0 0-1.63 0L3 4.57a1.93 1.93 0 0 0 0 3.36l12.18 6.86a1.636 1.636 0 0 0 1.63 0z\"/>","sprout":"<path d=\"M7 20h10\"/> <path d=\"M10 20c5.5-2.5.8-6.4 3-10\"/> <path d=\"M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z\"/> <path d=\"M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z\"/>","key-round":"<path d=\"M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z\"/> <circle cx=\"16.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\"/>","truck":"<path d=\"M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2\"/> <path d=\"M15 18H9\"/> <path d=\"M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14\"/> <circle cx=\"17\" cy=\"18\" r=\"2\"/> <circle cx=\"7\" cy=\"18\" r=\"2\"/>","circle-check":"<circle cx=\"12\" cy=\"12\" r=\"10\"/> <path d=\"m9 12 2 2 4-4\"/>","book-open":"<path d=\"M12 7v14\"/> <path d=\"M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z\"/>","droplets":"<path d=\"M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z\"/> <path d=\"M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97\"/>","trending-up":"<polyline points=\"22 7 13.5 15.5 8.5 10.5 2 17\"/> <polyline points=\"16 7 22 7 22 13\"/>","frame":"<line x1=\"22\" x2=\"2\" y1=\"6\" y2=\"6\"/> <line x1=\"22\" x2=\"2\" y1=\"18\" y2=\"18\"/> <line x1=\"6\" x2=\"6\" y1=\"2\" y2=\"22\"/> <line x1=\"18\" x2=\"18\" y1=\"2\" y2=\"22\"/>","brick-wall":"<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"/> <path d=\"M12 9v6\"/> <path d=\"M16 15v6\"/> <path d=\"M16 3v6\"/> <path d=\"M3 15h18\"/> <path d=\"M3 9h18\"/> <path d=\"M8 15v6\"/> <path d=\"M8 3v6\"/>","stamp":"<path d=\"M5 22h14\"/> <path d=\"M19.27 13.73A2.5 2.5 0 0 0 17.5 13h-11A2.5 2.5 0 0 0 4 15.5V17a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-1.5c0-.66-.26-1.3-.73-1.77Z\"/> <path d=\"M14 13V8.5C14 7 15 7 15 5a3 3 0 0 0-3-3c-1.66 0-3 1-3 3s1 2 1 3.5V13\"/>","circle-dot":"<circle cx=\"12\" cy=\"12\" r=\"10\"/> <circle cx=\"12\" cy=\"12\" r=\"1\"/>","mountain":"<path d=\"m8 3 4 8 5-5 5 15H2L8 3z\"/>","clipboard-list":"<rect width=\"8\" height=\"4\" x=\"8\" y=\"2\" rx=\"1\" ry=\"1\"/> <path d=\"M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2\"/> <path d=\"M12 11h4\"/> <path d=\"M12 16h4\"/> <path d=\"M8 11h.01\"/> <path d=\"M8 16h.01\"/>","receipt":"<path d=\"M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z\"/> <path d=\"M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8\"/> <path d=\"M12 17.5v-11\"/>","package":"<path d=\"m7.5 4.27 9 5.15\"/> <path d=\"M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z\"/> <path d=\"m3.3 7 8.7 5 8.7-5\"/> <path d=\"M12 22V12\"/>","map-pinned":"<path d=\"M18 8c0 3.613-3.869 7.429-5.393 8.795a1 1 0 0 1-1.214 0C9.87 15.429 6 11.613 6 8a6 6 0 0 1 12 0\"/> <circle cx=\"12\" cy=\"8\" r=\"2\"/> <path d=\"M8.714 14h-3.71a1 1 0 0 0-.948.683l-2.004 6A1 1 0 0 0 3 22h18a1 1 0 0 0 .948-1.316l-2-6a1 1 0 0 0-.949-.684h-3.712\"/>","search":"<circle cx=\"11\" cy=\"11\" r=\"8\"/> <path d=\"m21 21-4.3-4.3\"/>","building-2":"<path d=\"M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z\"/> <path d=\"M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2\"/> <path d=\"M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2\"/> <path d=\"M10 6h4\"/> <path d=\"M10 10h4\"/> <path d=\"M10 14h4\"/> <path d=\"M10 18h4\"/>","clock":"<circle cx=\"12\" cy=\"12\" r=\"10\"/> <polyline points=\"12 6 12 12 16 14\"/>","construction":"<rect x=\"2\" y=\"6\" width=\"20\" height=\"8\" rx=\"1\"/> <path d=\"M17 14v7\"/> <path d=\"M7 14v7\"/> <path d=\"M17 3v3\"/> <path d=\"M7 3v3\"/> <path d=\"M10 14 2.3 6.3\"/> <path d=\"m14 6 7.7 7.7\"/> <path d=\"m8 6 8 8\"/>","signpost":"<path d=\"M12 13v8\"/> <path d=\"M12 3v3\"/> <path d=\"M18 6a2 2 0 0 1 1.387.56l2.307 2.22a1 1 0 0 1 0 1.44l-2.307 2.22A2 2 0 0 1 18 13H6a2 2 0 0 1-1.387-.56l-2.306-2.22a1 1 0 0 1 0-1.44l2.306-2.22A2 2 0 0 1 6 6z\"/>","cable":"<path d=\"M17 21v-2a1 1 0 0 1-1-1v-1a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1\"/> <path d=\"M19 15V6.5a1 1 0 0 0-7 0v11a1 1 0 0 1-7 0V9\"/> <path d=\"M21 21v-2h-4\"/> <path d=\"M3 5h4V3\"/> <path d=\"M7 5a1 1 0 0 1 1 1v1a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a1 1 0 0 1 1-1V3\"/>","badge-check":"<path d=\"M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z\"/> <path d=\"m9 12 2 2 4-4\"/>","layers":"<path d=\"m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z\"/> <path d=\"m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65\"/> <path d=\"m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65\"/>","hammer":"<path d=\"m15 12-8.373 8.373a1 1 0 1 1-3-3L12 9\"/> <path d=\"m18 15 4-4\"/> <path d=\"m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172V7l-2.26-2.26a6 6 0 0 0-4.202-1.756L9 2.96l.92.82A6.18 6.18 0 0 1 12 8.4V10l2 2h1.172a2 2 0 0 1 1.414.586L18.5 14.5\"/>","users":"<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/> <circle cx=\"9\" cy=\"7\" r=\"4\"/> <path d=\"M22 21v-2a4 4 0 0 0-3-3.87\"/> <path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/>","zap":"<path d=\"M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z\"/>","calendar-clock":"<path d=\"M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5\"/> <path d=\"M16 2v4\"/> <path d=\"M8 2v4\"/> <path d=\"M3 10h5\"/> <path d=\"M17.5 17.5 16 16.3V14\"/> <circle cx=\"16\" cy=\"16\" r=\"6\"/>","x":"<path d=\"M18 6 6 18\"/> <path d=\"m6 6 12 12\"/>","banknote":"<rect width=\"20\" height=\"12\" x=\"2\" y=\"6\" rx=\"2\"/> <circle cx=\"12\" cy=\"12\" r=\"2\"/> <path d=\"M6 12h.01M18 12h.01\"/>","landmark":"<line x1=\"3\" x2=\"21\" y1=\"22\" y2=\"22\"/> <line x1=\"6\" x2=\"6\" y1=\"18\" y2=\"11\"/> <line x1=\"10\" x2=\"10\" y1=\"18\" y2=\"11\"/> <line x1=\"14\" x2=\"14\" y1=\"18\" y2=\"11\"/> <line x1=\"18\" x2=\"18\" y1=\"18\" y2=\"11\"/> <polygon points=\"12 2 20 7 4 7\"/>","app-window":"<rect x=\"2\" y=\"4\" width=\"20\" height=\"16\" rx=\"2\"/> <path d=\"M10 4v4\"/> <path d=\"M2 8h20\"/> <path d=\"M6 4v4\"/>","blocks":"<rect width=\"7\" height=\"7\" x=\"14\" y=\"3\" rx=\"1\"/> <path d=\"M10 21V8a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1H3\"/>","hand-coins":"<path d=\"M11 15h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 17\"/> <path d=\"m7 21 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9\"/> <path d=\"m2 16 6 6\"/> <circle cx=\"16\" cy=\"9\" r=\"2.9\"/> <circle cx=\"6\" cy=\"5\" r=\"3\"/>","file-text":"<path d=\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\"/> <path d=\"M14 2v4a2 2 0 0 0 2 2h4\"/> <path d=\"M10 9H8\"/> <path d=\"M16 13H8\"/> <path d=\"M16 17H8\"/>","trees":"<path d=\"M10 10v.2A3 3 0 0 1 8.9 16H5a3 3 0 0 1-1-5.8V10a3 3 0 0 1 6 0Z\"/> <path d=\"M7 16v6\"/> <path d=\"M13 19v3\"/> <path d=\"M12 19h8.3a1 1 0 0 0 .7-1.7L18 14h.3a1 1 0 0 0 .7-1.7L16 9h.2a1 1 0 0 0 .8-1.7L13 3l-1.4 1.5\"/>","container":"<path d=\"M22 7.7c0-.6-.4-1.2-.8-1.5l-6.3-3.9a1.72 1.72 0 0 0-1.7 0l-10.3 6c-.5.2-.9.8-.9 1.4v6.6c0 .5.4 1.2.8 1.5l6.3 3.9a1.72 1.72 0 0 0 1.7 0l10.3-6c.5-.3.9-1 .9-1.5Z\"/> <path d=\"M10 21.9V14L2.1 9.1\"/> <path d=\"m10 14 11.9-6.9\"/> <path d=\"M14 19.8v-8.1\"/> <path d=\"M18 17.5V9.4\"/>","file-check":"<path d=\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\"/> <path d=\"M14 2v4a2 2 0 0 0 2 2h4\"/> <path d=\"m9 15 2 2 4-4\"/>","drafting-compass":"<path d=\"m12.99 6.74 1.93 3.44\"/> <path d=\"M19.136 12a10 10 0 0 1-14.271 0\"/> <path d=\"m21 21-2.16-3.84\"/> <path d=\"m3 21 8.02-14.26\"/> <circle cx=\"12\" cy=\"5\" r=\"2\"/>","wallet":"<path d=\"M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1\"/> <path d=\"M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4\"/>"};
+const IC={"chevron-right":"<path d=\"m9 18 6-6-6-6\"/>","hard-hat":"<path d=\"M2 18a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v2z\"/> <path d=\"M10 10V5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5\"/> <path d=\"M4 15v-3a6 6 0 0 1 6-6\"/> <path d=\"M14 6a6 6 0 0 1 6 6v3\"/>","fence":"<path d=\"M4 3 2 5v15c0 .6.4 1 1 1h2c.6 0 1-.4 1-1V5Z\"/> <path d=\"M6 8h4\"/> <path d=\"M6 18h4\"/> <path d=\"m12 3-2 2v15c0 .6.4 1 1 1h2c.6 0 1-.4 1-1V5Z\"/> <path d=\"M14 8h4\"/> <path d=\"M14 18h4\"/> <path d=\"m20 3-2 2v15c0 .6.4 1 1 1h2c.6 0 1-.4 1-1V5Z\"/>","rectangle-horizontal":"<rect width=\"20\" height=\"12\" x=\"2\" y=\"6\" rx=\"2\"/>","wrench":"<path d=\"M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z\"/>","waves":"<path d=\"M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1\"/> <path d=\"M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1\"/> <path d=\"M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1\"/>","shield":"<path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\"/>","house":"<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\"/> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/>","cuboid":"<path d=\"m21.12 6.4-6.05-4.06a2 2 0 0 0-2.17-.05L2.95 8.41a2 2 0 0 0-.95 1.7v5.82a2 2 0 0 0 .88 1.66l6.05 4.07a2 2 0 0 0 2.17.05l9.95-6.12a2 2 0 0 0 .95-1.7V8.06a2 2 0 0 0-.88-1.66Z\"/> <path d=\"M10 22v-8L2.25 9.15\"/> <path d=\"m10 14 11.77-6.87\"/>","grid-3x3":"<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"/> <path d=\"M3 9h18\"/> <path d=\"M3 15h18\"/> <path d=\"M9 3v18\"/> <path d=\"M15 3v18\"/>","plug":"<path d=\"M12 22v-5\"/> <path d=\"M9 8V2\"/> <path d=\"M15 8V2\"/> <path d=\"M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z\"/>","paint-roller":"<rect width=\"16\" height=\"6\" x=\"2\" y=\"2\" rx=\"2\"/> <path d=\"M10 16v-2a2 2 0 0 1 2-2h8a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2\"/> <rect width=\"4\" height=\"6\" x=\"8\" y=\"16\" rx=\"1\"/>","shovel":"<path d=\"M2 22v-5l5-5 5 5-5 5z\"/> <path d=\"M9.5 14.5 16 8\"/> <path d=\"m17 2 5 5-.5.5a3.53 3.53 0 0 1-5 0s0 0 0 0a3.53 3.53 0 0 1 0-5L17 2\"/>","triangle-alert":"<path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\"/> <path d=\"M12 9v4\"/> <path d=\"M12 17h.01\"/>","scroll-text":"<path d=\"M15 12h-5\"/> <path d=\"M15 8h-5\"/> <path d=\"M19 17V5a2 2 0 0 0-2-2H4\"/> <path d=\"M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3\"/>","boxes":"<path d=\"M2.97 12.92A2 2 0 0 0 2 14.63v3.24a2 2 0 0 0 .97 1.71l3 1.8a2 2 0 0 0 2.06 0L12 19v-5.5l-5-3-4.03 2.42Z\"/> <path d=\"m7 16.5-4.74-2.85\"/> <path d=\"m7 16.5 5-3\"/> <path d=\"M7 16.5v5.17\"/> <path d=\"M12 13.5V19l3.97 2.38a2 2 0 0 0 2.06 0l3-1.8a2 2 0 0 0 .97-1.71v-3.24a2 2 0 0 0-.97-1.71L17 10.5l-5 3Z\"/> <path d=\"m17 16.5-5-3\"/> <path d=\"m17 16.5 4.74-2.85\"/> <path d=\"M17 16.5v5.17\"/> <path d=\"M7.97 4.42A2 2 0 0 0 7 6.13v4.37l5 3 5-3V6.13a2 2 0 0 0-.97-1.71l-3-1.8a2 2 0 0 0-2.06 0l-3 1.8Z\"/> <path d=\"M12 8 7.26 5.15\"/> <path d=\"m12 8 4.74-2.85\"/> <path d=\"M12 13.5V8\"/>","package-open":"<path d=\"M12 22v-9\"/> <path d=\"M15.17 2.21a1.67 1.67 0 0 1 1.63 0L21 4.57a1.93 1.93 0 0 1 0 3.36L8.82 14.79a1.655 1.655 0 0 1-1.64 0L3 12.43a1.93 1.93 0 0 1 0-3.36z\"/> <path d=\"M20 13v3.87a2.06 2.06 0 0 1-1.11 1.83l-6 3.08a1.93 1.93 0 0 1-1.78 0l-6-3.08A2.06 2.06 0 0 1 4 16.87V13\"/> <path d=\"M21 12.43a1.93 1.93 0 0 0 0-3.36L8.83 2.2a1.64 1.64 0 0 0-1.63 0L3 4.57a1.93 1.93 0 0 0 0 3.36l12.18 6.86a1.636 1.636 0 0 0 1.63 0z\"/>","sprout":"<path d=\"M7 20h10\"/> <path d=\"M10 20c5.5-2.5.8-6.4 3-10\"/> <path d=\"M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z\"/> <path d=\"M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z\"/>","key-round":"<path d=\"M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z\"/> <circle cx=\"16.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\"/>","truck":"<path d=\"M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2\"/> <path d=\"M15 18H9\"/> <path d=\"M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14\"/> <circle cx=\"17\" cy=\"18\" r=\"2\"/> <circle cx=\"7\" cy=\"18\" r=\"2\"/>","circle-check":"<circle cx=\"12\" cy=\"12\" r=\"10\"/> <path d=\"m9 12 2 2 4-4\"/>","book-open":"<path d=\"M12 7v14\"/> <path d=\"M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z\"/>","droplets":"<path d=\"M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z\"/> <path d=\"M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97\"/>","trending-up":"<polyline points=\"22 7 13.5 15.5 8.5 10.5 2 17\"/> <polyline points=\"16 7 22 7 22 13\"/>","frame":"<line x1=\"22\" x2=\"2\" y1=\"6\" y2=\"6\"/> <line x1=\"22\" x2=\"2\" y1=\"18\" y2=\"18\"/> <line x1=\"6\" x2=\"6\" y1=\"2\" y2=\"22\"/> <line x1=\"18\" x2=\"18\" y1=\"2\" y2=\"22\"/>","brick-wall":"<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"/> <path d=\"M12 9v6\"/> <path d=\"M16 15v6\"/> <path d=\"M16 3v6\"/> <path d=\"M3 15h18\"/> <path d=\"M3 9h18\"/> <path d=\"M8 15v6\"/> <path d=\"M8 3v6\"/>","stamp":"<path d=\"M5 22h14\"/> <path d=\"M19.27 13.73A2.5 2.5 0 0 0 17.5 13h-11A2.5 2.5 0 0 0 4 15.5V17a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-1.5c0-.66-.26-1.3-.73-1.77Z\"/> <path d=\"M14 13V8.5C14 7 15 7 15 5a3 3 0 0 0-3-3c-1.66 0-3 1-3 3s1 2 1 3.5V13\"/>","circle-dot":"<circle cx=\"12\" cy=\"12\" r=\"10\"/> <circle cx=\"12\" cy=\"12\" r=\"1\"/>","mountain":"<path d=\"m8 3 4 8 5-5 5 15H2L8 3z\"/>","clipboard-list":"<rect width=\"8\" height=\"4\" x=\"8\" y=\"2\" rx=\"1\" ry=\"1\"/> <path d=\"M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2\"/> <path d=\"M12 11h4\"/> <path d=\"M12 16h4\"/> <path d=\"M8 11h.01\"/> <path d=\"M8 16h.01\"/>","receipt":"<path d=\"M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z\"/> <path d=\"M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8\"/> <path d=\"M12 17.5v-11\"/>","package":"<path d=\"m7.5 4.27 9 5.15\"/> <path d=\"M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z\"/> <path d=\"m3.3 7 8.7 5 8.7-5\"/> <path d=\"M12 22V12\"/>","map-pinned":"<path d=\"M18 8c0 3.613-3.869 7.429-5.393 8.795a1 1 0 0 1-1.214 0C9.87 15.429 6 11.613 6 8a6 6 0 0 1 12 0\"/> <circle cx=\"12\" cy=\"8\" r=\"2\"/> <path d=\"M8.714 14h-3.71a1 1 0 0 0-.948.683l-2.004 6A1 1 0 0 0 3 22h18a1 1 0 0 0 .948-1.316l-2-6a1 1 0 0 0-.949-.684h-3.712\"/>","search":"<circle cx=\"11\" cy=\"11\" r=\"8\"/> <path d=\"m21 21-4.3-4.3\"/>","building-2":"<path d=\"M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z\"/> <path d=\"M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2\"/> <path d=\"M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2\"/> <path d=\"M10 6h4\"/> <path d=\"M10 10h4\"/> <path d=\"M10 14h4\"/> <path d=\"M10 18h4\"/>","clock":"<circle cx=\"12\" cy=\"12\" r=\"10\"/> <polyline points=\"12 6 12 12 16 14\"/>","construction":"<rect x=\"2\" y=\"6\" width=\"20\" height=\"8\" rx=\"1\"/> <path d=\"M17 14v7\"/> <path d=\"M7 14v7\"/> <path d=\"M17 3v3\"/> <path d=\"M7 3v3\"/> <path d=\"M10 14 2.3 6.3\"/> <path d=\"m14 6 7.7 7.7\"/> <path d=\"m8 6 8 8\"/>","signpost":"<path d=\"M12 13v8\"/> <path d=\"M12 3v3\"/> <path d=\"M18 6a2 2 0 0 1 1.387.56l2.307 2.22a1 1 0 0 1 0 1.44l-2.307 2.22A2 2 0 0 1 18 13H6a2 2 0 0 1-1.387-.56l-2.306-2.22a1 1 0 0 1 0-1.44l2.306-2.22A2 2 0 0 1 6 6z\"/>","cable":"<path d=\"M17 21v-2a1 1 0 0 1-1-1v-1a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1\"/> <path d=\"M19 15V6.5a1 1 0 0 0-7 0v11a1 1 0 0 1-7 0V9\"/> <path d=\"M21 21v-2h-4\"/> <path d=\"M3 5h4V3\"/> <path d=\"M7 5a1 1 0 0 1 1 1v1a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a1 1 0 0 1 1-1V3\"/>","badge-check":"<path d=\"M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z\"/> <path d=\"m9 12 2 2 4-4\"/>","layers":"<path d=\"m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z\"/> <path d=\"m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65\"/> <path d=\"m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65\"/>","hammer":"<path d=\"m15 12-8.373 8.373a1 1 0 1 1-3-3L12 9\"/> <path d=\"m18 15 4-4\"/> <path d=\"m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172V7l-2.26-2.26a6 6 0 0 0-4.202-1.756L9 2.96l.92.82A6.18 6.18 0 0 1 12 8.4V10l2 2h1.172a2 2 0 0 1 1.414.586L18.5 14.5\"/>","users":"<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/> <circle cx=\"9\" cy=\"7\" r=\"4\"/> <path d=\"M22 21v-2a4 4 0 0 0-3-3.87\"/> <path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/>","zap":"<path d=\"M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z\"/>","calendar-clock":"<path d=\"M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5\"/> <path d=\"M16 2v4\"/> <path d=\"M8 2v4\"/> <path d=\"M3 10h5\"/> <path d=\"M17.5 17.5 16 16.3V14\"/> <circle cx=\"16\" cy=\"16\" r=\"6\"/>","x":"<path d=\"M18 6 6 18\"/> <path d=\"m6 6 12 12\"/>","banknote":"<rect width=\"20\" height=\"12\" x=\"2\" y=\"6\" rx=\"2\"/> <circle cx=\"12\" cy=\"12\" r=\"2\"/> <path d=\"M6 12h.01M18 12h.01\"/>","landmark":"<line x1=\"3\" x2=\"21\" y1=\"22\" y2=\"22\"/> <line x1=\"6\" x2=\"6\" y1=\"18\" y2=\"11\"/> <line x1=\"10\" x2=\"10\" y1=\"18\" y2=\"11\"/> <line x1=\"14\" x2=\"14\" y1=\"18\" y2=\"11\"/> <line x1=\"18\" x2=\"18\" y1=\"18\" y2=\"11\"/> <polygon points=\"12 2 20 7 4 7\"/>","app-window":"<rect x=\"2\" y=\"4\" width=\"20\" height=\"16\" rx=\"2\"/> <path d=\"M10 4v4\"/> <path d=\"M2 8h20\"/> <path d=\"M6 4v4\"/>","blocks":"<rect width=\"7\" height=\"7\" x=\"14\" y=\"3\" rx=\"1\"/> <path d=\"M10 21V8a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1H3\"/>","hand-coins":"<path d=\"M11 15h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 17\"/> <path d=\"m7 21 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9\"/> <path d=\"m2 16 6 6\"/> <circle cx=\"16\" cy=\"9\" r=\"2.9\"/> <circle cx=\"6\" cy=\"5\" r=\"3\"/>","file-text":"<path d=\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\"/> <path d=\"M14 2v4a2 2 0 0 0 2 2h4\"/> <path d=\"M10 9H8\"/> <path d=\"M16 13H8\"/> <path d=\"M16 17H8\"/>","trees":"<path d=\"M10 10v.2A3 3 0 0 1 8.9 16H5a3 3 0 0 1-1-5.8V10a3 3 0 0 1 6 0Z\"/> <path d=\"M7 16v6\"/> <path d=\"M13 19v3\"/> <path d=\"M12 19h8.3a1 1 0 0 0 .7-1.7L18 14h.3a1 1 0 0 0 .7-1.7L16 9h.2a1 1 0 0 0 .8-1.7L13 3l-1.4 1.5\"/>","container":"<path d=\"M22 7.7c0-.6-.4-1.2-.8-1.5l-6.3-3.9a1.72 1.72 0 0 0-1.7 0l-10.3 6c-.5.2-.9.8-.9 1.4v6.6c0 .5.4 1.2.8 1.5l6.3 3.9a1.72 1.72 0 0 0 1.7 0l10.3-6c.5-.3.9-1 .9-1.5Z\"/> <path d=\"M10 21.9V14L2.1 9.1\"/> <path d=\"m10 14 11.9-6.9\"/> <path d=\"M14 19.8v-8.1\"/> <path d=\"M18 17.5V9.4\"/>","file-check":"<path d=\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\"/> <path d=\"M14 2v4a2 2 0 0 0 2 2h4\"/> <path d=\"m9 15 2 2 4-4\"/>","drafting-compass":"<path d=\"m12.99 6.74 1.93 3.44\"/> <path d=\"M19.136 12a10 10 0 0 1-14.271 0\"/> <path d=\"m21 21-2.16-3.84\"/> <path d=\"m3 21 8.02-14.26\"/> <circle cx=\"12\" cy=\"5\" r=\"2\"/>","wallet":"<path d=\"M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1\"/> <path d=\"M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4\"/>"};
 const CATIC={"etics":"layers","mão de obra":"hard-hat","cobertura":"house","betão":"cuboid","caixilharias":"app-window","ferro":"fence","armação":"grid-3x3","escavações":"shovel","madeira":"trees","bagacina":"mountain","impermebialização":"droplets","blocos":"brick-wall","cimento":"package","manilhas":"circle-dot","carpintaria":"hammer","reboco":"paint-roller","diversos":"boxes","soleiras":"rectangle-horizontal","eletricidade":"zap","aluguer":"key-round","transporte":"truck","canalizações":"wrench","areia":"waves","materiais":"package-open","brita":"blocks","cofragem":"frame","topografia":"map-pinned","segurança":"shield","terreno":"sprout","escritura":"stamp","arquitetura":"drafting-compass","certidão permanente":"file-check","certidão de nº":"file-text","direção de obra":"clipboard-list","parecer águas":"droplets","licença":"badge-check","confrontações":"signpost","documentação":"scroll-text","plástico":"container","placa licenciamento":"construction","pss & gr":"shield","abertura de ramal":"cable","fornecimento eletricidade":"plug","quadro obra":"zap","livro de obra":"book-open","vistoria de imóveis":"search","cobertura – estrutura de madeira":"trees","cobertura – revestimento (telha)":"house","cobertura – acessórios e remates":"wrench","cobertura – mão de obra":"hard-hat","movimento de terras – escavação":"shovel","movimento de terras – aterro e enrocamento":"mountain","estrutura – betão":"cuboid","estrutura – armaduras de aço":"fence","estrutura – cofragem":"frame","alvenarias – blocos":"brick-wall","revestimentos – reboco":"paint-roller","revestimentos – etics":"layers","impermeabilizações":"droplets","caixilharias exteriores":"app-window","cantarias – soleiras e peitoris":"rectangle-horizontal","redes de águas e esgotos":"wrench","redes de águas e esgotos – drenagem":"circle-dot","instalações elétricas":"zap","materiais – cimento":"package","materiais – areia":"waves","materiais – brita":"blocks","materiais – diversos":"package-open","estaleiro – aluguer de equipamento":"key-round","estaleiro – segurança":"shield","estaleiro – transportes":"truck","estaleiro – implantação topográfica":"map-pinned","estaleiro – quadro elétrico de obra":"zap","terreno – aquisição":"sprout","terreno – escritura e registos":"stamp","projetos – arquitetura e especialidades":"drafting-compass","projetos – levantamento topográfico":"map-pinned","direção técnica de obra":"clipboard-list","licenciamento – taxas e certidões":"badge-check","segurança e saúde (pss) e gestão de resíduos":"shield","ligações às redes – água":"droplets","ligações às redes – eletricidade":"plug","financiamento – vistoria bancária":"search"};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -251,7 +279,7 @@ function donut(id,items,onClick){
    options:{responsive:true,maintainAspectRatio:false,cutout:'68%',onClick:(e,els)=>{if(onClick&&els.length)onClick(items[els[0].index])},onHover:(e,els)=>{e.native.target.style.cursor=onClick&&els.length?'pointer':'default'},
     plugins:{legend:{display:false},tooltip:{...tipStyle(),callbacks:{label:c=>{const t=c.dataset.data.reduce((a,b)=>a+b,0);return ' '+eur(c.parsed)+' ('+pct(c.parsed,t)+')'}}}}}});
 }
-function legend(el,items,tot){$(el).innerHTML=items.map(i=>`<div><i style="--c:var(${i.c})"></i><span title="${esc(i.l)}">${esc(i.l)}</span><b class="num">${eur(i.v,0)}</b><em class="num">${pct(i.v,tot)}</em></div>`).join('')}
+function legend(el,items,tot){$(el).innerHTML=items.map(i=>`<div><i style="--c:var(${i.c})"></i><span title="${esc(i.t||i.l)}">${esc(i.l)}</span><b class="num">${eur(i.v,0)}</b><em class="num">${pct(i.v,tot)}</em></div>`).join('')}
 const kEur=v=>v>=1000?(v/1000).toLocaleString('pt-PT')+' k€':v+' €';
 
 function drawCharts(){
@@ -259,23 +287,27 @@ function drawCharts(){
   const tot=sum(O,x=>x.t),paid=sum(O,x=>x.p?x.t:0),over=sum(O,x=>late(x)?x.t:0),up=tot-paid-over;
   // acumulado por mês
   if(O.length){
-    const first=O.reduce((m,x)=>x.d<m?x.d:m,'9'),last=O.reduce((m,x)=>x.d>m?x.d:m,'');
+    // os gráficos começam no primeiro mês de obra (Tosco/Acabamentos); o que veio antes (terreno, projeto) entra como valor de partida
+    const ob=O.filter(x=>x.s!=='Projeto'),src=ob.length?ob:O;
+    const first=src.reduce((m,x)=>x.d<m?x.d:m,'9'),last=O.reduce((m,x)=>x.d>m?x.d:m,'');
     const mk0=+first.slice(0,4)*12+ +first.slice(5,7)-1,mk1=+last.slice(0,4)*12+ +last.slice(5,7)-1;
-    const mon=Array(mk1-mk0+1).fill(0),monP=Array(mk1-mk0+1).fill(0),monU=Array(mk1-mk0+1).fill(0);
-    O.forEach(x=>{const i=+x.d.slice(0,4)*12+ +x.d.slice(5,7)-1-mk0;mon[i]+=x.t;x.p?monP[i]+=x.t:monU[i]+=x.t});
+    const mon=Array(mk1-mk0+1).fill(0),monP=Array(mk1-mk0+1).fill(0),monU=Array(mk1-mk0+1).fill(0);let pre=0;
+    O.forEach(x=>{const i=+x.d.slice(0,4)*12+ +x.d.slice(5,7)-1-mk0;if(i<0){pre+=x.t;return}mon[i]+=x.t;x.p?monP[i]+=x.t:monU[i]+=x.t});
     const labs=mon.map((_,i)=>{const k=mk0+i;return MES[k%12]+' '+String(Math.floor(k/12)).slice(2)});
-    let acc=0;const cum=mon.map(v=>acc+=v);
+    let acc=pre;const cum=mon.map(v=>acc+=v);
+    $('sCum').textContent=pre?'Desde '+labs[0]+', início da obra. Antes: '+eur(pre,0)+' de terreno e projeto':'Soma dos lançamentos pela data';
+    $('sPer').textContent='Pago e por pagar, pela data do lançamento'+(pre?'. Antes de '+labs[0]+': '+eur(pre,0):'');
     const ctx=$('cCum').getContext('2d');const g=ctx.createLinearGradient(0,0,0,270);g.addColorStop(0,css('--primary')+'66');g.addColorStop(1,css('--primary')+'05');
     mk('cCum',{type:'line',data:{labels:labs,datasets:[{label:'Acumulado',data:cum,borderColor:css('--primary'),backgroundColor:g,fill:true,borderWidth:2.5,tension:.25,pointRadius:cum.map((_,i)=>i===cum.length-1?5:0),pointHoverRadius:6,pointBackgroundColor:css('--primary'),pointBorderColor:css('--surface'),pointBorderWidth:2}]},
       options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{...tipStyle(),displayColors:false,callbacks:{label:c=>'Acumulado '+eur(c.parsed.y),afterLabel:c=>'No mês '+eur(mon[c.dataIndex])}}},
        scales:{x:{grid:{display:false},ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:10}},y:{beginAtZero:true,border:{display:false},ticks:{callback:kEur,maxTicksLimit:6}}}}});
-    // período: mês até 18 meses, senão trimestre
-    const byQ=mon.length>18;let L=labs,P=monP,U=monU;
+    // período: mês até 24 meses, senão trimestre
+    const byQ=mon.length>24;let L=labs,P=monP,U=monU;
     if(byQ){const q={};mon.forEach((_,i)=>{const k=mk0+i,y=Math.floor(k/12),qq=Math.floor((k%12)/3),key=y*4+qq;q[key]=q[key]||{l:'T'+(qq+1)+' '+String(y).slice(2),p:0,u:0};q[key].p+=monP[i];q[key].u+=monU[i]});
       const ks=Object.keys(q).map(Number).sort((a,b)=>a-b),full=[];for(let k=ks[0];k<=ks[ks.length-1];k++)full.push(q[k]||{l:'T'+(k%4+1)+' '+String(Math.floor(k/4)).slice(2),p:0,u:0});
       L=full.map(x=>x.l);P=full.map(x=>x.p);U=full.map(x=>x.u)}
     $('hPer').lastChild.textContent=byQ?'Despesa por trimestre':'Despesa por mês';
-    mk('cPer',{type:'bar',data:{labels:L,datasets:[{label:'Pago',data:P,backgroundColor:css('--primary'),borderRadius:4,stack:'a',maxBarThickness:38,borderColor:css('--surface'),borderWidth:{top:0,bottom:0,left:0,right:0}},{label:'Por pagar',data:U,backgroundColor:css('--due'),borderRadius:4,stack:'a',maxBarThickness:38}]},
+    mk('cPer',{type:'bar',data:{labels:L,datasets:[{label:'Pago',data:P,backgroundColor:css('--primary'),borderRadius:4,stack:'a',maxBarThickness:38,borderColor:css('--surface'),borderWidth:{top:0,bottom:0,left:0,right:0}},{label:'Por pagar',data:U,backgroundColor:css('--due'),borderRadius:4,stack:'a',maxBarThickness:38,borderColor:css('--surface'),borderWidth:{top:0,bottom:2,left:0,right:0},borderSkipped:false}]},
       options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'top',align:'start',labels:{usePointStyle:true,pointStyle:'rectRounded',boxWidth:10,boxHeight:10,color:css('--ink2')}},tooltip:{...tipStyle(),callbacks:{label:c=>' '+c.dataset.label+' '+eur(c.parsed.y),footer:it=>'Total '+eur(it.reduce((a,b)=>a+b.parsed.y,0))}}},
        scales:{x:{stacked:true,grid:{display:false},ticks:{maxRotation:0,autoSkip:true}},y:{stacked:true,beginAtZero:true,border:{display:false},ticks:{callback:kEur,maxTicksLimit:6}}}}});
   }
@@ -287,8 +319,13 @@ function drawCharts(){
   donut('cComp',comp,i=>{F.s=F.s===i.k?'':i.k;apply()});legend('lgComp',comp,tot);$('compMid').textContent=eur(tot,0);
   // financiamento (global)
   const T=sum(ALL,x=>x.t),Pd=sum(ALL,x=>x.p?x.t:0),used=sum(D.emp,r=>r[3]);
-  const shades=['--navy','--primary','--cyan','--sky','--steel','--ice'];
-  const fin=D.emp.filter(r=>r[3]>0).map((r,i)=>({l:r[0]+(D.emp.filter(q=>q[0]===r[0]).length>1?' ('+eur(r[1],0)+')':''),v:r[3],c:shades[i%shades.length]}));
+  // empréstimos com pelo menos 15 % do consumido aparecem sozinhos; os restantes juntam-se numa fatia
+  const shades=['--primary','--cyan','--steel','--sky'];
+  const nm=r=>r[0]+(D.emp.filter(q=>q[0]===r[0]).length>1?' ('+eur(r[1],0)+')':'');
+  const E=D.emp.filter(r=>r[3]>0).sort((a,b)=>b[3]-a[3]),big=E.filter(r=>r[3]>=0.15*used),small=E.filter(r=>r[3]<0.15*used);
+  const fin=big.map((r,i)=>({l:nm(r),v:r[3],c:shades[i%shades.length]}));
+  if(small.length===1)fin.push({l:nm(small[0]),v:small[0][3],c:'--ice'});
+  else if(small.length)fin.push({l:'Outros empréstimos ('+small.length+')',v:sum(small,r=>r[3]),c:'--ice',t:small.map(nm).join(', ')});
   if(Pd-used>0.005)fin.push({l:'Outras fontes',v:Pd-used,c:'--slate'});
   fin.push({l:'Por pagar',v:T-Pd,c:'--due'});
   donut('cFin',fin);legend('lgFin',fin,T);$('finMid').textContent=eur(T,0);
@@ -302,9 +339,9 @@ function drawKpis(){
    ['landmark','Investimento',eur(tot),O.length+' lançamentos','blue'],
    ['circle-check','Pago',eur(paid),pct(paid,tot)+' do total',''],
    ['clock','Por pagar',eur(unpaid),U.length+(U.length===1?' lançamento':' lançamentos'),unpaid?'warn':''],
-   ['triangle-alert','Vencido',eur(over),over?'Prazo ultrapassado':'Nada em atraso',over?'crit':''],
-   ['wallet','Disponível nos empréstimos',eur(avail),'Cobre '+pct(avail,sum(ALL,x=>x.p?0:x.t))+' do que falta pagar','blue'],
-   ['banknote','Em dívida',eur(debt),D.emp.length+' empréstimos','blue'],
+   ['triangle-alert','Vencido',eur(over),over?'Vencimento estimado: data + 30 dias':'Nada em atraso',over?'crit':''],
+   ['wallet','Disponível nos empréstimos',eur(avail),'Cobre '+pct(avail,sum(ALL,x=>x.p?0:x.t))+' do que falta pagar','soft'],
+   ['banknote','Em dívida',eur(debt),D.emp.length+' empréstimos','soft'],
   ].map(k=>`<div class="kpi ${k[4]}"><div class="top"><span class="badge">${ic(k[0])}</span><span>${k[1]}</span></div><b class="num">${k[2]}</b><small>${k[3]}</small></div>`).join('');
 }
 
@@ -319,7 +356,7 @@ function bars(el,key,keep,withIc){
   if(rest.length)top.push({k:'Outras ('+rest.length+')',p:sum(rest,r=>r.p),u:sum(rest,r=>r.u),other:1});
   const max=Math.max(1,...top.map(r=>r.p+r.u));
   el.className='bars'+(sel?' has-sel':'');
-  el.innerHTML=top.map(r=>`<button type="button" class="bar${withIc?'':' noic'}" aria-pressed="${!r.other&&sel===r.k}" title="${esc(r.k)}: ${eur(r.p+r.u)} (${pct(r.p+r.u,tot)})${r.u?' · por pagar '+eur(r.u):''}">${withIc?`<span class="bi">${r.other?ic('boxes'):catIc(r.k)}</span>`:''}<span class="lab">${esc(r.k)}</span><span class="track">${r.p>0?`<i style="width:${100*r.p/max}%"></i>`:''}${r.u>0?`<i class="p" style="width:${100*r.u/max}%"></i>`:''}</span><span class="val num">${eur(r.p+r.u,0)}</span></button>`).join('');
+  el.innerHTML=top.map(r=>`<button type="button" class="bar${withIc?'':' noic'}" aria-pressed="${!r.other&&sel===r.k}" title="${esc(r.k)}: ${eur(r.p+r.u)} (${pct(r.p+r.u,tot)})${r.u?' · por pagar '+eur(r.u):''}">${withIc?`<span class="bi">${r.other?ic('boxes'):catIc(r.k)}</span>`:''}<span class="mid"><span class="lab">${esc(r.k)}</span><span class="track">${r.p>0?`<i style="width:${100*r.p/max}%"></i>`:''}${r.u>0?`<i class="p" style="width:${100*r.u/max}%"></i>`:''}</span></span><span class="val num">${eur(r.p+r.u,0)}</span></button>`).join('');
   el.querySelectorAll('.bar').forEach((b,i)=>{const r=top[i];b.addEventListener('click',()=>{if(r.other)return;F[key]=F[key]===r.k?'':r.k;apply()})});
 }
 
@@ -335,13 +372,15 @@ function drawLoans(){
    ['Amortizado',eur(paidL),'Em dívida '+eur(debt)],
   ].map(f=>`<div><span>${f[0]}</span><b class="num">${f[1]}</b><small>${f[2]}</small></div>`).join('');
   const C=2*Math.PI*26;
-  $('loans').innerHTML=D.emp.map(r=>{const p=r[1]?r[3]/r[1]:0;const bank=/nbda|cetelem|banco|caixa/i.test(r[0]);
-    return `<div class="loan"><div class="ring"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="var(--chip)" stroke-width="8"/><circle cx="32" cy="32" r="26" fill="none" stroke="var(--cyan)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${(C*p).toFixed(1)} ${C.toFixed(1)}"/></svg><span class="num">${Math.round(100*p)}%</span></div>
-    <div style="min-width:0"><h3>${ic(bank?'landmark':'users')}<span>${esc(r[0])}</span></h3><dl><dt>Inicial</dt><dd class="num">${eur(r[1],0)}</dd><dt>Consumido</dt><dd class="num">${eur(r[3])}</dd><dt>Disponível</dt><dd class="num">${eur(r[2])}</dd><dt>Em dívida</dt><dd class="num">${eur(r[5],0)}</dd></dl></div></div>`}).join('');
+  // primeiro os empréstimos que ainda têm saldo disponível, destacados
+  const L=[...D.emp].sort((a,b)=>(b[2]>0.005)-(a[2]>0.005)||b[2]-a[2]||b[1]-a[1]);
+  $('loans').innerHTML=L.map(r=>{const p=r[1]?r[3]/r[1]:0;const bank=/nbda|cetelem|banco|caixa/i.test(r[0]);const has=r[2]>0.005;
+    return `<div class="loan${has?' has':''}"><div class="ring"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="var(--chip)" stroke-width="8"/><circle cx="32" cy="32" r="26" fill="none" stroke="var(--cyan)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${(C*p).toFixed(1)} ${C.toFixed(1)}"/></svg><span class="num">${Math.round(100*p)}%</span></div>
+    <div style="min-width:0">${has?'<span class="tag">Com saldo</span>':''}<h3>${ic(bank?'landmark':'users')}<span>${esc(r[0])}</span></h3><dl><dt>Inicial</dt><dd class="num">${eur(r[1],0)}</dd><dt>Consumido</dt><dd class="num">${eur(r[3])}</dd><dt>Disponível</dt><dd class="num">${eur(r[2])}</dd><dt>Em dívida</dt><dd class="num">${eur(r[5],0)}</dd></dl></div></div>`}).join('');
 }
 
 // ---------- pendentes
-let dueF='';
+let dueF='';const dueOpen=new Set();
 function drawDue(){
   const U0=O.filter(x=>!x.p&&x.due),UL=U0.filter(late),UN=U0.filter(x=>!late(x));
   const opts=[['','Todos',U0],['late','Vencido',UL],['next','A vencer',UN]];
@@ -350,14 +389,21 @@ function drawDue(){
   const U=dueF==='late'?UL:dueF==='next'?UN:U0,unpaid=sum(U,x=>x.t);
   // regime de IVA: separa o isento do normal nas entidades que têm pendentes nos dois regimes (p. ex. Albano Vieira)
   const reg=x=>x.iva===0&&x.v!==0?'isento de IVA':'com IVA',P0=ALL.filter(x=>!x.p&&x.due),dois=new Set([...new Set(P0.map(x=>x.e))].filter(e=>new Set(P0.filter(x=>x.e===e).map(reg)).size>1));
-  const g={};U.forEach(x=>{const rg=dois.has(x.e)?reg(x):'',k=x.due+'|'+x.e+'|'+rg+'|'+x.c;(g[k]=g[k]||{due:x.due,e:x.e+(rg?' ('+rg+')':''),c:x.c,t:0});g[k].t+=x.t});
-  const rows=Object.values(g).sort((a,b)=>a.due<b.due?-1:a.due>b.due?1:b.t-a.t);
+  // agrupado por entidade (maior valor primeiro); as faturas de cada entidade abrem com um toque
+  const G={};U.forEach(x=>{const g=G[x.e]=G[x.e]||{e:x.e,t:0,late:0,n:0,min:x.due,it:{}};g.t+=x.t;g.n++;if(late(x))g.late+=x.t;if(x.due<g.min)g.min=x.due;
+    const rg=dois.has(x.e)?reg(x):'',k=x.due+'|'+rg+'|'+x.c;(g.it[k]=g.it[k]||{due:x.due,rg,c:x.c,t:0,n:0});g.it[k].t+=x.t;g.it[k].n++});
+  const gs=Object.values(G).sort((a,b)=>b.t-a.t),mx=Math.max(1,...gs.map(g=>g.t));
   const totLab=dueF==='late'?'Total vencido':dueF==='next'?'Total a vencer':'Total por pagar';
   const pill=d=>d<0?`<span class="pill crit">${ic('triangle-alert')}Vencido há ${-d} dia${d===-1?'':'s'}</span>`:d===0?`<span class="pill warn">${ic('clock')}Vence hoje</span>`:`<span class="pill warn">${ic('clock')}Vence em ${d} dia${d===1?'':'s'}</span>`;
-  $('due').innerHTML=rows.length?'<thead><tr><th>Vencimento</th><th>Entidade</th><th>Descrição</th><th>Estado</th><th class="r">Total</th></tr></thead><tbody>'+
-    rows.map(r=>`<tr><td class="num">${dmy(r.due)}</td><td>${esc(r.e)}</td><td><span class="cat">${catIc(r.c)}${esc(r.c)}</span></td><td>${pill(dayDiff(r.due))}</td><td class="r num">${eur(r.t)}</td></tr>`).join('')+
-    `</tbody><tfoot><tr><td colspan="4">${totLab}</td><td class="r num">${eur(unpaid)}</td></tr></tfoot>`
+  $('due').innerHTML=gs.length?'<thead><tr><th>Entidade / descrição</th><th class="hm">Vencimento</th><th class="hm">Estado</th><th class="r">Total</th></tr></thead><tbody>'+
+    gs.map((g,i)=>{const op=dueOpen.has(g.e),its=Object.values(g.it).sort((a,b)=>a.due<b.due?-1:a.due>b.due?1:b.t-a.t);
+      const sub=g.n+(g.n===1?' fatura':' faturas')+' · '+pct(g.t,unpaid)+(g.late>0.005&&g.t-g.late>0.005?' · vencido '+eur(g.late):'');
+      return `<tr class="grp" data-i="${i}"><td><button type="button" class="tg" aria-expanded="${op}">${ic('chevron-right')}<span>${esc(g.e)}<span class="sub" style="font-variant-numeric:tabular-nums">${sub}</span><span class="mo">${pill(dayDiff(g.min))}</span></span></button></td><td class="num hm">${g.n>1?'desde ':''}${dmy(g.min)}</td><td class="hm">${pill(dayDiff(g.min))}</td><td class="r num">${eur(g.t)}<span class="share${g.late>0.005?' late':''}" style="width:${Math.max(4,100*g.t/mx)}%;margin-left:auto"></span></td></tr>`+
+        its.map(r=>`<tr class="det dg${i}" ${op?'':'hidden'}><td><span class="cat">${catIc(r.c)}${esc(r.c)}${r.rg?' <span class="sub" style="display:inline;color:var(--muted)">('+r.rg+')</span>':''}${r.n>1?' <span style="color:var(--muted)">×'+r.n+'</span>':''}</span><span class="mo"><span class="num">${dmy(r.due)}</span>${pill(dayDiff(r.due))}</span></td><td class="num hm">${dmy(r.due)}</td><td class="hm">${pill(dayDiff(r.due))}</td><td class="r num">${eur(r.t)}</td></tr>`).join('')}).join('')+
+    `</tbody><tfoot><tr><td>${totLab}</td><td class="hm"></td><td class="hm"></td><td class="r num">${eur(unpaid)}</td></tr></tfoot>`
     :`<tbody><tr><td>${dueF==='late'?'Não há pagamentos vencidos com estes filtros.':dueF==='next'?'Não há pagamentos a vencer com estes filtros.':'Não há pagamentos pendentes com estes filtros.'}</td></tr></tbody>`;
+  $('due').querySelectorAll('.grp').forEach(tr=>{const i=tr.dataset.i,g=gs[i],b=tr.querySelector('.tg');
+    tr.addEventListener('click',()=>{const op=!dueOpen.has(g.e);op?dueOpen.add(g.e):dueOpen.delete(g.e);b.setAttribute('aria-expanded',op);$('due').querySelectorAll('.dg'+i).forEach(d=>d.hidden=!op)})});
 }
 
 // ---------- lançamentos
